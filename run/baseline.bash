@@ -1,1 +1,1 @@
-python3.6 r2r_src/train.py --upload --name baseline
+python r2r_src/train.py --upload --name baseline
