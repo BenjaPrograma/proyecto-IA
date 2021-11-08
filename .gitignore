@@ -24,7 +24,7 @@ tensorboard_logs
 
 /tasks/R2R/demo.py
 
-
+venv
 img_features
 obj_features
 build
