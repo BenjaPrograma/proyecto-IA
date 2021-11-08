@@ -23,3 +23,9 @@ tensorboard_logs
 /tasks/R2R/results/*/*.json
 
 /tasks/R2R/demo.py
+
+
+img_features
+obj_features
+build
+snap

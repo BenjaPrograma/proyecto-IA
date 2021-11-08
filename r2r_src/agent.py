@@ -689,6 +689,7 @@ class Seq2SeqAgent(BaseAgent):
                 self.logs['pro_loss'].append(0)
             
             # aux #3: inst matching
+            ## args.matWeight es el peso (es el menor de todos)
             if abs(args.matWeight - 0) > eps and not (args.no_train_rl and train_rl):
                 if args.modmat:
                     for i in range(v_ctx.shape[1]):
