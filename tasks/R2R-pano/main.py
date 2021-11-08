@@ -20,9 +20,9 @@ parser.add_argument('--exp_name_secondary', default='', type=str,
                         It decides where to store samples and models')
 
 # Dataset options
-parser.add_argument('--train_vocab', default='tasks/R2R-pano/data/train_vocab.txt',
+parser.add_argument('--train_vocab', default='tasks/R2R/data/train_vocab.txt',
                     type=str, help='path to training vocab')
-parser.add_argument('--trainval_vocab', default='tasks/R2R-pano/data/trainval_vocab.txt',
+parser.add_argument('--trainval_vocab', default='tasks/R2R/data/trainval_vocab.txt',
                     type=str, help='path to training and validation vocab')
 parser.add_argument('--img_feat_dir', default='img_features/ResNet-152-imagenet.tsv',
                     type=str, help='path to pre-cached image features')
@@ -125,12 +125,12 @@ parser.add_argument('--test_submission', default=0, type=int,
 
 # Output options
 parser.add_argument('--results_dir',
-                    default='tasks/R2R-pano/results/',
+                    default='tasks/R2R/results/',
                     type=str, help='where to save the output results for computing accuracy')
 parser.add_argument('--resume', default='', type=str,
                     help='two options for resuming the model: latest | best')
 parser.add_argument('--checkpoint_dir',
-                    default='tasks/R2R-pano/checkpoints/pano-seq2seq/',
+                    default='tasks/R2R/checkpoints/pano-seq2seq/',
                     type=str, help='where to save trained models')
 parser.add_argument('--tensorboard', default=1, type=int,
                     help='Use TensorBoard for loss visualization')

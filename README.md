@@ -112,7 +112,7 @@ source activate r2r
 ```
 ### Install special requirements for the R2R dataset
 ```
-pip install -r tasks/R2R-pano/requirements.txt
+pip install -r tasks/R2R/requirements.txt
 ```
 
 ### Install PyTorch for your Conda Env
@@ -129,10 +129,10 @@ conda install pytorch torchvision -c pytorch
 Download the original data from [MatterPort3DSimulator](https://github.com/peteanderson80/Matterport3DSimulator) and the synthetic data for data augmentation proposed by [Speaker-Follower](https://github.com/ronghanghu/speaker_follower) in NeurIPS 2018.
 ```bash
 # download dataset
-./tasks/R2R-pano/data/download.sh
+./tasks/R2R/data/download.sh
 
 # download the synthetic data from Speaker-Follower
-./tasks/R2R-pano/data/download_precomputed_augmentation.sh
+./tasks/R2R/data/download_precomputed_augmentation.sh
 
 # if you haven't already download the precomputed image features, otherwise skip this step
 cd img_features
@@ -182,7 +182,7 @@ Refer to the [Catch](https://github.com/philsquared/Catch) documentation for add
 
 Minimum testing to see if the code can successfully run training.
 ```bash
-python tasks/R2R-pano/main.py
+python tasks/R2R/main.py
 ```
 
 Congradulations! You have completed the installation for the simulator and R2R dataset. You are now ready for training and reproducing our results.
@@ -193,7 +193,7 @@ Congradulations! You have completed the installation for the simulator and R2R d
 To replicate the performance reported in our paper, train the proposed regretful agent with the following command. 
 ```bash
 # the regretful agent train on real data
-CUDA_VISIBLE_DEVICES=0 python tasks/R2R-pano/main.py \
+CUDA_VISIBLE_DEVICES=0 python tasks/R2R/main.py \
     --exp_name 'regretful-agent-data|real' \
     --batch_size 64 \
     --img_fc_dim 1024 \
@@ -207,7 +207,7 @@ CUDA_VISIBLE_DEVICES=0 python tasks/R2R-pano/main.py \
 Pre-train on synthetic data
 ```bash
 # the regretful agent pre-train on synthetic data
-CUDA_VISIBLE_DEVICES=0 python tasks/R2R-pano/main.py \
+CUDA_VISIBLE_DEVICES=0 python tasks/R2R/main.py \
     --exp_name 'regretful-agent-data|synthetic' \
     --batch_size 64 \
     --img_fc_dim 1024 \
@@ -222,7 +222,7 @@ CUDA_VISIBLE_DEVICES=0 python tasks/R2R-pano/main.py \
 Once the training on synthetic data is completed, we can now train on real data.
 ```bash
 # the regretful agent finetune on read data
-CUDA_VISIBLE_DEVICES=0 python tasks/R2R-pano/main.py \
+CUDA_VISIBLE_DEVICES=0 python tasks/R2R/main.py \
     --exp_name 'regretful-agent-data|synthetic' \
     --batch_size 64 \
     --img_fc_dim 1024 \

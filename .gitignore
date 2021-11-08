@@ -18,8 +18,8 @@ tensorboard_logs
 *.t7
 */checkpoints
 *.tar
-/tasks/R2R-pano/data/*.json
-/tasks/R2R-pano/results/*.json
-/tasks/R2R-pano/results/*/*.json
+/tasks/R2R/data/*.json
+/tasks/R2R/results/*.json
+/tasks/R2R/results/*/*.json
 
-/tasks/R2R-pano/demo.py
+/tasks/R2R/demo.py
