@@ -346,10 +346,12 @@ class Seq2SeqAgent(BaseAgent):
             obs = np.array(self.env.reset(batch))
 
         # Reorder the language input for the encoder (do not ruin the original code)
-        seq, seq_mask, seq_lengths, perm_idx = self._sort_batch(obs)
+        seq, seq_mask, seq_lengths, perm_idx = self._sort_batch(obs) # YA USA LA INSTR ENCODING
+        ## AHI MISMO PUEDO USAR UN SEQ_FAKE
+        ## Y DPS PASARSELO AL SELF.ENCODER.REQUIRES_GRAD(FALSE)
         perm_obs = obs[perm_idx]
 
-        ctx, h_t, c_t = self.encoder(seq, seq_lengths)
+        ctx, h_t, c_t = self.encoder(seq, seq_lengths) # SERA ESTE EL ENCODING FINAL?
         ctx_mask = seq_mask
 
         # Init the reward shaping
@@ -694,6 +696,21 @@ class Seq2SeqAgent(BaseAgent):
             # aux #3: inst matching
             ## args.matWeight es el peso (es el menor de todos)
             if abs(args.matWeight - 0) > eps and not (args.no_train_rl and train_rl):
+
+                ## QUEREMOS USAR LO QUE VIO (VISUAL FEATURES + ATTENTION)
+                ## Y CONCATENARLO AL FINAL CON UN ENCODING DE GLOBAL LANGUAGE
+                ## QUE SEA OBTENIDO POR HACER UN FAKE CON FAKE OBJS O REAL
+                ## TENEMOS LA OPCION DE USAR f_t0 (del paper, vision embedding)
+                ## sería h1, que tambien se le pasa al feature, entonces
+                ## esta bien.
+                ## TOMA EL CTX, PODEMOS CREAR UN CTX FAKE CON self.encoding, requires_grad=false
+                ## SI ESQ PODEMOS CREAR EN EL .json un fake_instruction
+                # TODO
+
+
+                # IGUAL PODRIAMOS PROBAR PASANDOLE vl_ctx (global features)
+                # EL PROBLEMA ESQ LE ESTAMOS PASANDO EL LENGUAJE DESDE ANTES.
+
                 if args.modmat:
                     for i in range(v_ctx.shape[1]):
                         if i == 0:
@@ -715,16 +732,16 @@ class Seq2SeqAgent(BaseAgent):
                         # l_ctx = torch.cat((ctx[:,0,:], ctx[:,-1,:]), dim=1)
                         l_ctx = ctx[:,0,:]
                     new_h1 = label * h1 + (1 - label) * h1[rand_idx, :]
-                    new_l_ctx = label * l_ctx + (1 - label) * l_ctx[rand_idx, :]
+                    #new_l_ctx = label * l_ctx + (1 - label) * l_ctx[rand_idx, :]
                     # vl_pair = torch.cat((new_h1, h1), dim=1)
                     # vl_pair = torch.cat((new_l_ctx, l_ctx), dim=1)
                     prob = self.matching_network(new_h1, l_ctx)
-                    prob1 = self.matching_network(new_h1, h1)
-                    prob2 = self.matching_network(new_l_ctx, l_ctx)
+                    #prob1 = self.matching_network(new_h1, h1)
+                    #prob2 = self.matching_network(new_l_ctx, l_ctx)
                     mat_loss = F.binary_cross_entropy(prob, label) * args.matWeight
-                    mat_loss1 = F.binary_cross_entropy(prob1, label) * args.matWeight
-                    mat_loss2 = F.binary_cross_entropy(prob2, label) * args.matWeight
-                    self.loss += mat_loss + mat_loss1 + mat_loss2
+                    #mat_loss1 = F.binary_cross_entropy(prob1, label) * args.matWeight
+                    #mat_loss2 = F.binary_cross_entropy(prob2, label) * args.matWeight
+                    self.loss += mat_loss #+ mat_loss1 + mat_loss2
                 else:
                     h1 = v_ctx[:, -1, :]
                     batch_size = h1.shape[0]

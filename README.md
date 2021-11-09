@@ -13,7 +13,7 @@ LLama a train() (con R2RBatch = train_env)
 
 - R2RBatch (en env.py)
 carga las features de imagenes
-carga en self.DATA las instrucciones (con load_datasets()) con encoding en un dict, que apendea a DATA ***
+carga en self.DATA las instrucciones (con load_datasets()) en un dict, que apendea a DATA, se usa un tokenizer para el primer encoding (para pasarlo a la lstm) ***
 y la info para correr el simulador
 CREO QUE LA GRACIA ES Q _get_obs tiene de todo.
 y todo esta cargado en R2RBatch (que despues se llama train_env)
@@ -38,10 +38,40 @@ se llama al SEQ2SEQ.train()
 
 
 
+## TODO
+-- Ver como cambiar OBJS por NADA
+-- Ver como cambiar OBJS por OBJS no presentes
+-- Swappear OBJS dentro de una oracion
+
 ## COSAS WORK
+
+- COMO OBTENER OBJETOS DE UN PATH_ID?
+Se pueden obtener de las dense_features y del matterport3dsimulator que nos provee
+el repositorio de nuestros amigos https://github.com/cacosandon/360-visualization
+
++ Entender formato de caco (creo que los # son espacios, #/w# es with?, no se que es /)
++ Tener lista de objetos (sacar adjetivos) 
++ Cruzar la totalidad de objetos por SALA y IMG_ID con ambos modos de obtener objetos
++ Ver cuales objetos se cruzan / cuales no con los objetos que se usan en las instrucciones *** 
+
++ Agregar a cada sala, los objetos totales que hay, y por viewpoint tambien agregar los que se ven desde ese.
++ Aumentar el vocabulario con los objetos nuevos
+
+le pasaremos h1 + fake_ctx a nuestra red FC
+fake_ctx = self.encoding(fake_seq, seq_length)
+
+Tendremos que crear un fake_instructions que detecte objetos, y los cambie.
+Para eso crear un nuevo .json con las siguientes columnas
+objetos.json = todos los que son objetos del vocab
+r2r_train_objinfo.json = con nuevas keys de objetos presentes 
+
+
 
 - Se hara en 12k Iterations, ya que después sigue subiendo el  val_seen y train, pero el unseen muy muy poco. (0.2 puntos en 10k de iteraciones) El paper usa 80k
 pero son 360 minutos en 22k en colab pro.
+
+- Se hara con 
+--denseObj --name XXX
 
 
 
