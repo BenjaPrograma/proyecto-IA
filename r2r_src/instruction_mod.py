@@ -1,6 +1,8 @@
 import json
 import numpy as np
-    
+
+
+basepath = "tasks/R2R/data/"
 with open('tasks/R2R/data/R2R_train.json', "r") as f:
     new_data = json.load(f)
 #print(new_data[0])
@@ -51,6 +53,7 @@ print(obj_names_set)
 new_imgid_obj_dict = {k:list(set(v)) for k,v in new_imgid_obj_dict.items()}
 #print(new_imgid_obj_dict)
 
-with open("data/all_objs_dense_0_8_size_"+ str(len(obj_names_set))+ ".txt", "w") as f:
+
+with open(basepath + "all_objs_dense_0_8_size_"+ str(len(obj_names_set))+ ".txt", "w") as f:
     for obj in obj_names_set:
         f.write(obj +"\n")

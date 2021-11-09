@@ -732,16 +732,16 @@ class Seq2SeqAgent(BaseAgent):
                         # l_ctx = torch.cat((ctx[:,0,:], ctx[:,-1,:]), dim=1)
                         l_ctx = ctx[:,0,:]
                     new_h1 = label * h1 + (1 - label) * h1[rand_idx, :]
-                    #new_l_ctx = label * l_ctx + (1 - label) * l_ctx[rand_idx, :]
+                    new_l_ctx = label * l_ctx + (1 - label) * l_ctx[rand_idx, :]
                     # vl_pair = torch.cat((new_h1, h1), dim=1)
                     # vl_pair = torch.cat((new_l_ctx, l_ctx), dim=1)
                     prob = self.matching_network(new_h1, l_ctx)
-                    #prob1 = self.matching_network(new_h1, h1)
-                    #prob2 = self.matching_network(new_l_ctx, l_ctx)
+                    prob1 = self.matching_network(new_h1, h1)
+                    prob2 = self.matching_network(new_l_ctx, l_ctx)
                     mat_loss = F.binary_cross_entropy(prob, label) * args.matWeight
-                    #mat_loss1 = F.binary_cross_entropy(prob1, label) * args.matWeight
-                    #mat_loss2 = F.binary_cross_entropy(prob2, label) * args.matWeight
-                    self.loss += mat_loss #+ mat_loss1 + mat_loss2
+                    mat_loss1 = F.binary_cross_entropy(prob1, label) * args.matWeight
+                    mat_loss2 = F.binary_cross_entropy(prob2, label) * args.matWeight
+                    self.loss += mat_loss + mat_loss1 + mat_loss2
                 else:
                     h1 = v_ctx[:, -1, :]
                     batch_size = h1.shape[0]
