@@ -110,7 +110,7 @@ class Param:
 
         # object
         self.parser.add_argument('--objdir', type=str, default='0_8')
-        self.parser.add_argument("--objthr", dest='objthr', type=float, default=0.99)
+        self.parser.add_argument("--objthr", dest='objthr', type=float, default=0.8)
         self.parser.add_argument("--angleObjSize", dest="angle_bbox_size", type=int, default=8)
         self.parser.add_argument("--insEmb", dest="instEmb", type=int, default=300)
         self.parser.add_argument("--insHE", dest= "instHE", type=int, default=16)
