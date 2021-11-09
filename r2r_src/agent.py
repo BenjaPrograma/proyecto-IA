@@ -109,6 +109,7 @@ class Seq2SeqAgent(BaseAgent):
         self.optimizers = (self.encoder_optimizer, self.decoder_optimizer, self.critic_optimizer)
 
         if args.aux_option:
+            # ESTO MARCA QUE SE QUIEREN LAS AUXRN
             if args.modspe:
                 self.speaker_decoder = model.SpeakerDecoder_SameLSTM(self.tok.vocab_size(), args.wemb,
                                                              self.tok.word_to_index['<PAD>'], args.rnn_dim,
@@ -120,7 +121,9 @@ class Seq2SeqAgent(BaseAgent):
             self.matching_network = model.MatchingNetwork().cuda()
             self.feature_predictor = model.FeaturePredictor().cuda()
             self.angle_predictor = model.AnglePredictor().cuda()
-            if args.upload:
+            if args.upload: 
+                # ACA DUDAS SI ESTARA BIEN EL DIRECTORIO DE CARGA Y DE
+                # UPLOAD
                 speaker_model = get_sync_dir('lyx/snap/speaker/state_dict/best_val_unseen_bleu')
             else:
                 speaker_model = os.path.join(args.R2R_Aux_path, 'snap/speaker/state_dict/best_val_unseen_bleu')

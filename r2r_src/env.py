@@ -141,6 +141,9 @@ class ObjEnvBatch(EnvBatch):
 
 class R2RBatch():
     ''' Implements the Room to Room navigation task, using discretized viewpoints and pretrained features '''
+    # ESTE ES EL QUE CARGA ALL
+    # SE GUARDA EN R2RBATCH.data que es una lista, y tiene un dict
+    # con la data de las instrucciones y el encode
 
     def __init__(self, feature_store, obj_d_feat=None, obj_s_feat=None, batch_size=100, seed=10, splits=['train'],
                  tokenizer=None, name=None):

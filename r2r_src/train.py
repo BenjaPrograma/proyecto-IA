@@ -72,7 +72,8 @@ if args.fast_train:
 
 feedback_method = args.feedback # teacher or sample
 
-print(args)
+args.iters = 12000 # HARDCODED 12000 ITERATIONS
+print("PRINTING ARGS", args)
 
 
 def train_speaker(train_env, tok, n_iters, log_every=500, val_envs={}):
@@ -418,6 +419,8 @@ def setup():
 
 
 def train_val():
+    # ESTE ES EL QUE PARTE ALL
+
     ''' Train on the training set, and validate on seen and unseen splits. '''
     # args.fast_train = True
     setup()
@@ -428,6 +431,8 @@ def train_val():
     feat_dict = read_img_features(features)
 
     # load object feature
+
+    ## ACA SE VE SI SE CARGAN LOS OBJ FEATURES
     obj_s_feat = None
     if args.sparseObj:
         obj_s_feat = utils.read_obj_sparse_features(sparse_obj_feat, args.objthr)
@@ -462,6 +467,7 @@ def train_val():
     )
 
     if args.train == 'listener':
+        # DEBE SER ESTE
         train(train_env, tok, args.iters, val_envs=val_envs)
     elif args.train == 'validlistener':
         if args.beam:

@@ -2,6 +2,32 @@
 - Repositorio utilizado/ejecutado en COLAB: 
 https://colab.research.google.com/drive/1I-_81IKBNIwOXX6rJqAllNHTRptX1oun?authuser=1#scrollTo=0AJVw3Fp1AdO
 
+train.py -> train_val -> (R2RBatch -> load_datasets), train -> Seq2Seq init -> Seq2Seq.train
+
+
+- train.py -> train_val() 
+corre los splits.
+Carga las features de imagenes
+Llama a R2RBatch *
+LLama a train() (con R2RBatch = train_env)
+
+- R2RBatch (en env.py)
+carga las features de imagenes
+carga en self.DATA las instrucciones (con load_datasets()) con encoding en un dict, que apendea a DATA ***
+y la info para correr el simulador
+CREO QUE LA GRACIA ES Q _get_obs tiene de todo.
+y todo esta cargado en R2RBatch (que despues se llama train_env)
+
+- load_datasets esta en utils.py y lee los json *
+
+- train() (de train.py) 
+
+Aca estan los logs,
+se llama al model learner con el train_env
+se carga speaker
+se llama al SEQ2SEQ.train()
+
+-SEQ2SEQ
 
 ### ENTRENAR BASELINE
 !python r2r_src/train.py 
@@ -11,6 +37,11 @@ https://colab.research.google.com/drive/1I-_81IKBNIwOXX6rJqAllNHTRptX1oun?authus
 
 
 
+
+## COSAS WORK
+
+- Se hara en 12k Iterations, ya que después sigue subiendo el  val_seen y train, pero el unseen muy muy poco. (0.2 puntos en 10k de iteraciones) El paper usa 80k
+pero son 360 minutos en 22k en colab pro.
 
 
 

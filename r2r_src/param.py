@@ -8,7 +8,7 @@ class Param:
         self.parser = argparse.ArgumentParser(description="")
 
         # General
-        self.parser.add_argument('--iters', type=int, default=80000)
+        self.parser.add_argument('--iters', type=int, default=12000)
         self.parser.add_argument('--name', type=str, default='default')
         self.parser.add_argument('--train', type=str, default='listener')
 

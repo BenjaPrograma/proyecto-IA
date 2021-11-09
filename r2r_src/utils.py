@@ -288,6 +288,7 @@ def read_img_features(feature_store):
     return features
 
 def read_obj_dense_features(dense_obj_feat1, dense_obj_feat2, bbox, sparse_obj_feat, th):
+    # CARGA LAS FEATURES DENSAS
     print("Start loading the object dense feature")
     start = time.time()
     obj_d_feat1 = np.load(dense_obj_feat1, allow_pickle=True).item()
