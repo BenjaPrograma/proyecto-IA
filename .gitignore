@@ -19,12 +19,11 @@ tensorboard_logs
 */checkpoints
 *.tar
 
-
+data/matterport_unzip
 venv
 img_features
 obj_features
 build
 snap
 
-data
 .env
