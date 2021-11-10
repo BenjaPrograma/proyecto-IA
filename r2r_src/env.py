@@ -2,7 +2,7 @@
 
 import sys
 
-from r2r_src.obj_aware import load_scan_objs_data, swap_objs
+from obj_aware import load_scan_objs_data, swap_objs_using_scanid
 sys.path.append('buildpy36')
 import MatterSim
 import csv
@@ -175,7 +175,7 @@ class R2RBatch():
                     new_item['instructions'] = instr
                     print("vanilla instr type =", type(instr))
                     print(instr)
-                    fake_instr = swap_objs(objs_certain,
+                    fake_instr = swap_objs_using_scanid(objs_certain,
                     scanid_to_objs, item['scan'], copy.copy(instr), alpha=1)
                     print("fake instr type =",fake_instr)
                     new_item['fake_instructions'] = fake_instr

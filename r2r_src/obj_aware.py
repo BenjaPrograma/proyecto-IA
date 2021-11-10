@@ -14,7 +14,7 @@ def load_scan_objs_data():
 
 
 
-def swap_objs(objs_certain, scanid_to_objs, scanid, instr, alpha=1):
+def swap_objs_using_scanid(objs_certain, scanid_to_objs, scanid, instr, alpha=1):
     instr_objs = set(scanid_to_objs[scanid][0])
     scan_objs = set(scanid_to_objs[scanid][1])
 
