@@ -165,7 +165,8 @@ class R2RBatch():
         objs_certain, scanid_to_objs = load_scan_objs_data()# ADDED
         for k,v in scanid_to_objs.items():
             print(len(v[0]),len(v[1]))
-        print(scanid_to_objs["8194nk5LbLH"])
+        print("8194nk5LbLH" in scanid_to_objs)
+        print("AAA", scanid_to_objs["8194nk5LbLH"])
         for split in splits:
             for item in load_datasets([split]):
                 # Split multiple instructions into separate entries
