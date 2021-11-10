@@ -2,7 +2,7 @@ import pickle
 #import numpy as np
 import random
 
-def repickling4():
+def _repickling4():
     basepath = "tasks/R2R/data/useful/"
     with open(basepath + 'set_objs_certain_218.pkl', 'rb') as f:
         objs_certain = pickle.load(f)
@@ -31,7 +31,8 @@ def load_scan_objs_data():
 def swap_objs_using_scanid(objs_certain, scanid_to_objs, scanid, instr, alpha=1):
     instr_objs = set(scanid_to_objs[scanid][0])
     scan_objs = set(scanid_to_objs[scanid][1])
-
+    print(len(instr_objs), print(len(scan_objs)))
+    print(len(objs_certain))
     instr = instr.lower().strip().split(" ")
     i = 0
     while i < len(instr):
