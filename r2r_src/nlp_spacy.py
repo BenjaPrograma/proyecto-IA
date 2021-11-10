@@ -4,7 +4,7 @@ import spacy
 import pickle
 from collections import defaultdict
 
-def main()
+def main():
     spacy.prefer_gpu()
     nlp = spacy.load("en_core_web_trf") # SLOWER BUT MORE ACC
     #nlp = spacy.load("en_core_web_sm") # FASTER BUT LESS ACC
@@ -52,5 +52,15 @@ def main()
 
 def evaluate():
     
-            
-#print(scan_obj_dict)
+    basepath = "tasks/R2R/data/all_objs_file"
+    obj_list = []
+    with open(basepath + 'spacy_all_objs_from_instruction_val_495.pkl', 'rb') as f:
+        obj_list = pickle.load(f)
+    
+    spacy.prefer_gpu()
+    #nlp = spacy.load("en_core_web_trf") # SLOWER BUT MORE ACC
+    nlp = spacy.load("en_core_web_sm") # FASTER BUT LESS ACC
+
+
+#print(scan_obj_dict)    with open(basepath + 'set_objs_certain_218.pkl', 'rb') as f:
+        objs_certain = pickle.load(f)
