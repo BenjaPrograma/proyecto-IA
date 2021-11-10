@@ -1,16 +1,31 @@
-from pickle5 import pickle
-import numpy as np
+import pickle
+#import numpy as np
 import random
+
+def repickling4():
+    basepath = "tasks/R2R/data/useful/"
+    with open(basepath + 'set_objs_certain_218.pkl', 'rb') as f:
+        objs_certain = pickle.load(f)
+
+    with open(basepath + 'scanid_to_objs_and_aux_objs.pkl', 'rb') as f:
+        scanid_to_objs = pickle.load(f)
+
+    with open(basepath + 'set_objs_certain_218.pkl', 'wb') as f:
+        pickle.dump(objs_certain, f, 4)
+
+    with open(basepath + 'scanid_to_objs_and_aux_objs.pkl', 'wb') as f:
+        pickle.dump(scanid_to_objs, f, 4)
+repickling4()
 
 def load_scan_objs_data():
     basepath = "tasks/R2R/data/useful/"
-    #with open(basepath + 'set_objs_certain_218.pkl', 'rb') as f:
-    f = basepath + 'set_objs_certain_218.pkl'
-    objs_certain = pickle.loads(f)
+    with open(basepath + 'set_objs_certain_218.pkl', 'rb') as f:
 
-    #with open(basepath + 'scanid_to_objs_and_aux_objs.pkl', 'rb') as f:
-    f = basepath + 'scanid_to_objs_and_aux_objs.pkl'
-    scanid_to_objs = pickle.loads(f)
+        objs_certain = pickle.load(f)
+
+    with open(basepath + 'scanid_to_objs_and_aux_objs.pkl', 'rb') as f:
+
+        scanid_to_objs = pickle.load(f)
     return objs_certain, scanid_to_objs
 
 
