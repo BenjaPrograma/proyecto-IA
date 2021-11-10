@@ -41,32 +41,34 @@ def swap_objs_using_scanid(objs_certain, scanid_to_objs, scanid, instr, alpha=1)
 
     list_objs_certain = list(objs_certain)# FOR EFF
 
-    print(len(instr_objs), len(scan_objs))
-    print("LEN CERTAIN =", len(objs_certain))
+    #print(len(instr_objs), len(scan_objs))
+    #print("LEN CERTAIN =", len(objs_certain))
     instr = instr.lower().strip().split(" ")
     i = 0
     while i < len(instr):
         word = instr[i]
         j = 0
-        while i+j < len(instr) and instr[i+j] in instr_objs:
-            j +=1
-        j -=1
-        # AGARRAMOS TODOS LOS OBJETOS
-        # QUEDAN DE i HASTA j
-        if alpha >= random.random():
-            # SI ES MAYOR A 1, SE CAMBIA EL OBJ
-            rand_obj_in_scan = True
-            while rand_obj_in_scan:
-                new_obj = random.choice(list_objs_certain)
-                if new_obj in instr_objs or new_obj in scan_objs:
-                    continue
-                else:
-                    rand_obj_in_scan = False
-            instr[i] = new_obj
-            for _ in range(j):
-                instr.pop(i+1)
+        if word in instr_objs:
+            while i+j < len(instr) and instr[i+j] in instr_objs:
+                j +=1
+            j -=1
+            # AGARRAMOS TODOS LOS OBJETOS
+            # QUEDAN DE i HASTA j
+            if alpha >= random.random():
+                # SI ES MAYOR A 1, SE CAMBIA EL OBJ
+                rand_obj_in_scan = True
+                while rand_obj_in_scan:
+                    new_obj = random.choice(list_objs_certain)
+                    if new_obj in instr_objs or new_obj in scan_objs:
+                        continue
+                    else:
+                        rand_obj_in_scan = False
+                instr[i] = new_obj
+                for _ in range(j):
+                    instr.pop(i+1)
         # ELIMINAMOS LOS OBJS CONSECUTIVOS POR 1 DE UNA PALABRA
         i +=1
+    instr = " ".join(instr)
     return instr
         
 
