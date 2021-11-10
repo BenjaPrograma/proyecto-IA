@@ -163,9 +163,9 @@ class R2RBatch():
             self.tok = tokenizer
         scans = []
         objs_certain, scanid_to_objs = load_scan_objs_data()# ADDED
-        for k,v in scanid_to_objs.items():
-            print(len(v[0]),len(v[1]))
-        objs_certain = list(objs_certain) # FOR EFFICIENCY WHEN RANDOM.CHOICE
+        #for k,v in scanid_to_objs.items():
+        #    print(len(v[0]),len(v[1]))
+
         for split in splits:
             for item in load_datasets([split]):
                 # Split multiple instructions into separate entries
@@ -179,7 +179,7 @@ class R2RBatch():
                     print(instr)
                     fake_instr = swap_objs_using_scanid(objs_certain,
                     scanid_to_objs, item['scan'], copy.copy(instr), alpha=1)
-                    print("fake instr type =",fake_instr)
+                    print("fake instr type =",type(fake_instr))
                     new_item['fake_instructions'] = fake_instr
                     print(fake_instr)
                     print("###")
