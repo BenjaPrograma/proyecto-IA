@@ -1,0 +1,8 @@
+networkX
+torch
+torchvision
+networkX
+tensorboardX
+tqdm
+polyaxon-client
+numpy

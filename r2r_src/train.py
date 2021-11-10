@@ -72,9 +72,6 @@ if args.fast_train:
 
 feedback_method = args.feedback # teacher or sample
 
-args.iters = 12000 # HARDCODED 12000 ITERATIONS
-print("PRINTING ARGS", args)
-
 
 def train_speaker(train_env, tok, n_iters, log_every=500, val_envs={}):
     writer = SummaryWriter(logdir=log_dir)

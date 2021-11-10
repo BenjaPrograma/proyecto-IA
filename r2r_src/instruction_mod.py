@@ -1,17 +1,18 @@
 import json
 import numpy as np
-
-
+import pickle
+from collections import defaultdict
 basepath = "tasks/R2R/data/"
-with open('tasks/R2R/data/R2R_train.json', "r") as f:
-    new_data = json.load(f)
-#print(new_data[0])
+
+
+with open(basepath + 'scans_val_unseen_test_set.pkl', 'rb') as f:
+    set_scan_unseen = pickle.load(f)
 
 th = 0.8
-j = 0
+
 
 with open('connectivity/scans.txt') as f:
-    scans = [scan.strip() for scan in f.readlines()]
+    scans = [scan.strip() for scan in f.readlines() if scan.strip() not in set_scan_unseen]
 
 scan_imgid_dict = dict()
 for scan in scans:
@@ -38,6 +39,7 @@ obj_d_feat = {**obj_d_feat1, **obj_d_feat2}
 #    print(i)
 obj_names_set = set()
 
+dense_scanid_obj = defaultdict(set)
 
 for img_id, scan in imgid_scan_dict.items():
     long_id = scan + "_" + img_id
@@ -46,14 +48,35 @@ for img_id, scan in imgid_scan_dict.items():
             if obj_d_feat[long_id]['concat_prob'][i] < th:
                 continue
             obj = obj_d_feat[long_id]["concat_text"][i]
+            obj = obj.strip().split(' ')
+            if len(obj) > 1:
+                obj.pop(0)
+            obj =" ".join(obj)
             obj_names_set.add(obj)
             new_imgid_obj_dict[img_id].append(obj)
+            dense_scanid_obj[scan].add(obj)
 
-print(obj_names_set)
+#print(obj_names_set)
 new_imgid_obj_dict = {k:list(set(v)) for k,v in new_imgid_obj_dict.items()}
 #print(new_imgid_obj_dict)
 
-
-with open(basepath + "all_objs_dense_0_8_size_"+ str(len(obj_names_set))+ ".txt", "w") as f:
+with open(basepath + "densefeat_all_objs_" + str(len(obj_names_set))+ ".txt", "w") as f:
     for obj in obj_names_set:
         f.write(obj +"\n")
+
+with open(basepath + "densefeat_all_objs_FOR_EXCL_" + str(len(obj_names_set))+ ".txt", "w") as f:
+    for obj in obj_names_set:
+        f.write(obj +"\n")
+
+with open(basepath + 'global_scanid_to_imgid'+'.pkl', 'wb') as f:
+    pickle.dump(scan_imgid_dict, f, pickle.HIGHEST_PROTOCOL)
+
+with open(basepath + 'global_imgid_to_scanid'+'.pkl', 'wb') as f:
+    pickle.dump(imgid_scan_dict, f, pickle.HIGHEST_PROTOCOL)
+
+with open(basepath + 'dense_scanid_to_objs'+'.pkl', 'wb') as f:
+    pickle.dump(dense_scanid_obj, f, pickle.HIGHEST_PROTOCOL)
+        
+with open(basepath + 'dense_imgid_to_objs'+'.pkl', 'wb') as f:
+    pickle.dump(new_imgid_obj_dict, f, pickle.HIGHEST_PROTOCOL)
+        

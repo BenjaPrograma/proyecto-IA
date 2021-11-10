@@ -31,3 +31,4 @@ build
 snap
 
 data
+.env

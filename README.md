@@ -35,8 +35,9 @@ se llama al SEQ2SEQ.train()
 
 ¿Que es el feature predictor? (TEMPORAL DIFFERENCE TASK)
 
+nvidia-docker run -it --mount type=bind,source="/mnt/d/BACKUP 05-10-2021 FORMAT/Lifestein/UC/UC 2021-2/Topicos de IA/Proyecto/proyecto-IA/data/matterport_unzip",target=/root/mount/proyecto-IA/data/matterport_unzip --volume `pwd`:/root/mount/proyecto-IA mattersim:9.2-devel-ubuntu18.04
 
-
+export MATTERPORT_DATA_DIR=
 
 ## TODO
 -- Ver como cambiar OBJS por NADA
@@ -49,12 +50,19 @@ se llama al SEQ2SEQ.train()
 Se pueden obtener de las dense_features y del matterport3dsimulator que nos provee
 el repositorio de nuestros amigos https://github.com/cacosandon/360-visualization
 
-+ Entender formato de caco (creo que los # son espacios, #/w# es with?, no se que es /)
-+ Tener lista de objetos (sacar adjetivos) 
-+ Cruzar la totalidad de objetos por SALA y IMG_ID con ambos modos de obtener objetos
-+ Ver cuales objetos se cruzan / cuales no con los objetos que se usan en las instrucciones *** 
 
-+ Agregar a cada sala, los objetos totales que hay, y por viewpoint tambien agregar los que se ven desde ese.
+
+
+
+
+
+
+
+
+## DETALLE DE PONER EN TRAINVAL_VOCAB LOS OBJETOS QUE SAQUE DEL VOCAB DE LOS SCANS DE AHI
+FIXED PERO EL VOCAB_VAL ES IGUAL AL VOCAB_TRAIN, PERO LOS UNSEEN SON UNSEEEN.
+
+
 + Aumentar el vocabulario con los objetos nuevos
 
 le pasaremos h1 + fake_ctx a nuestra red FC
@@ -73,7 +81,40 @@ pero son 360 minutos en 22k en colab pro.
 - Se hara con 
 --denseObj --name XXX
 
+### FILES
 
+#### base
+- nlp.py genera los obj spacy en data
+- instruction_mod.py genera los obj densefeatures en data
+- script en repositorio cacosandon genera los obj matt3d en data.
+- scans_unseen.py genera "scans_val_unseen_test_set.pkl" un set pickleado para no leer aquellos scans al formar el resto de los datos.
+
+#### compuestos
+(generado por obj_vocab_maker.py)
+- OBJS_CERTAIN_247.TXT/.pkl: Tiene la triple interseccion de densefeat/matt3d y spacy de las instrucciones, de todos los objetos en común, por lo que es lo más probable que si sean objetos reales.
+
+- scanid_object_maker.py -> Genera "scanid_to_objs_and_aux_objs.pkl"
+
+- "scanid_to_objs_and_aux_objs.pkl" scanid, con 2 listas, una con los objetos por las instrucciones (con spacy), y otro con los objetos aux.
+
+
+
+#### Funcion reemplazo objetos en un scanid por falsos
+
++ Cuando se lean los R2R train y val_seen? o creo que solo R2R Train, hay que leer el doc
++ Agregar el vocab nuevo a train_vocab.txt y a trainval_vocab.txt?
++ Vamos a hacer que si en una instrucción hay 2 objetos o más seguidos, se consideran como que hay que reemplazar todos esos. Siempre reemplazar por palabras que esten en el objs_certain, pero que no estén ni en la instrucción_obj ni en el aux_obj
++ Vamos a generar una funcion que con prob=X cambie los objetos que detecte (si estan seguidos cuentan como 1), esto tiene que ser antes del tokenizer, y luego tenemos que pasarselo al tokenizer, y luego al encoding y ver que es eso de Variable.require_grad=False, para asegurar que no quede con descenso de gradiente.
++ Finalmente en la función vemos si le pasamos el original o el falso y que prediga el label, concatenando el h1 + fake_ctx
+
+
+### BASELINES:
+RIAL_mat_dense_baseline_0_85 -> 0.4 unseen
+- Mat no entrena (loss)
+- Rendimiento = con Dense Features
+
+MG-AuxRN
+- Mat no entrena, el resto sí, lentamente, podría ser mejor que 0.4 unseen
 
 ### HIPOTESIS
 
