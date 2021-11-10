@@ -733,6 +733,8 @@ class Seq2SeqAgent(BaseAgent):
                         l_ctx = ctx[:,0,:]
                     new_h1 = label * h1 + (1 - label) * h1[rand_idx, :]
                     new_l_ctx = label * l_ctx + (1 - label) * l_ctx[rand_idx, :]
+                    # ALGO SIMILAR
+                    
                     # vl_pair = torch.cat((new_h1, h1), dim=1)
                     # vl_pair = torch.cat((new_l_ctx, l_ctx), dim=1)
                     prob = self.matching_network(new_h1, l_ctx)
@@ -751,6 +753,7 @@ class Seq2SeqAgent(BaseAgent):
                     same_idx = rand_idx == order_idx
                     label = (matching_mask | same_idx).float().unsqueeze(1).cuda()  # 1 same, 0 different
                     new_h1 = label * h1 + (1 - label) * h1[rand_idx, :]
+                    # HACER ALGO SIMILAR?
                     l_ctx = ctx[:,0,:].detach()
                     vl_pair = torch.cat((new_h1, l_ctx), dim=1)
                     prob = self.matching_network(vl_pair)

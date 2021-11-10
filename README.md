@@ -102,6 +102,19 @@ pero son 360 minutos en 22k en colab pro.
 #### Funcion reemplazo objetos en un scanid por falsos
 
 + Cuando se lean los R2R train y val_seen? o creo que solo R2R Train, hay que leer el doc
+- En R2RBATCH (env.py __init__), se podria aca cargar segun scanid,
+y meterlo en new_item["fake_instruction_obj"]
+y ["fake_instruction_encoding]
+
+luego eso se usa en el _sort_batch de agent.py en el self.rollout,
+tendriamos que tener 2 sortbatch uno para el fake
+
+luego le pasamosm al self.encoder el fake y obtenemos fake_ctx (printear esto a ver si queda con un grad)
+
+Ver como mezclar los batchs de fake_ctx entremedio del real 
+ver porque usa l_ctx y que significa el 0 entremedio.
+(ver como construye los nuevos h1 con los rand_idx)
+
 + Agregar el vocab nuevo a train_vocab.txt y a trainval_vocab.txt?
 + Vamos a hacer que si en una instrucción hay 2 objetos o más seguidos, se consideran como que hay que reemplazar todos esos. Siempre reemplazar por palabras que esten en el objs_certain, pero que no estén ni en la instrucción_obj ni en el aux_obj
 + Vamos a generar una funcion que con prob=X cambie los objetos que detecte (si estan seguidos cuentan como 1), esto tiene que ser antes del tokenizer, y luego tenemos que pasarselo al tokenizer, y luego al encoding y ver que es eso de Variable.require_grad=False, para asegurar que no quede con descenso de gradiente.
