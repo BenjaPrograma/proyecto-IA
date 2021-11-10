@@ -51,7 +51,7 @@ Se pueden obtener de las dense_features y del matterport3dsimulator que nos prov
 el repositorio de nuestros amigos https://github.com/cacosandon/360-visualization
 
 
-
+DEBI HABER HECHO TODO PARA EL PATHID
 
 
 

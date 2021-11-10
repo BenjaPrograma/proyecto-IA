@@ -1,6 +1,8 @@
 ''' Batched Room-to-Room navigation environment '''
 
 import sys
+
+from r2r_src.obj_aware import load_scan_objs_data, swap_objs
 sys.path.append('buildpy36')
 import MatterSim
 import csv
@@ -13,6 +15,8 @@ import os
 import random
 import networkx as nx
 from param import args
+import copy
+
 
 from utils import load_datasets, load_nav_graphs, Tokenizer
 
@@ -158,6 +162,8 @@ class R2RBatch():
         if tokenizer:
             self.tok = tokenizer
         scans = []
+        objs_certain, scanid_to_objs = load_scan_objs_data()# ADDED
+        objs_certain = list(objs_certain) # FOR EFFICIENCY WHEN RANDOM.CHOICE
         for split in splits:
             for item in load_datasets([split]):
                 # Split multiple instructions into separate entries
@@ -167,8 +173,17 @@ class R2RBatch():
                     new_item = dict(item)
                     new_item['instr_id'] = '%s_%d' % (item['path_id'], j)
                     new_item['instructions'] = instr
+                    print("vanilla instr type =", type(instr))
+                    print(instr)
+                    fake_instr = swap_objs(objs_certain,
+                    scanid_to_objs, item['scan'], copy.copy(instr), alpha=1)
+                    print("fake instr type =",fake_instr)
+                    new_item['fake_instructions'] = fake_instr
+                    print(fake_instr)
+                    print("###")
                     if tokenizer:
                         new_item['instr_encoding'] = tokenizer.encode_sentence(instr)
+                        new_item['fake_instr_encoding'] = tokenizer.encode_sentence=(fake_instr)
                     if not tokenizer or new_item['instr_encoding'] is not None:  # Filter the wrong data
                         self.data.append(new_item)
                         scans.append(item['scan'])
