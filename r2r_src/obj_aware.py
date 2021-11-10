@@ -27,18 +27,19 @@ def load_scan_objs_data():
         scanid_to_objs = pickle.load(f)
     return objs_certain, scanid_to_objs
 
-objs_certain, scanid_to_objs = load_scan_objs_data()
-for k,v in scanid_to_objs.items():
-    print(len(v[0]),len(v[1]))
+#objs_certain, scanid_to_objs = load_scan_objs_data()
+#for k,v in scanid_to_objs.items():
+#    print(len(v[0]),len(v[1]))
     #print(v[0])
     #print(v[1])
     #break
 
 def swap_objs_using_scanid(objs_certain, scanid_to_objs, scanid, instr, alpha=1):
-    instr_objs = set(scanid_to_objs[scanid][0])
-    scan_objs = set(scanid_to_objs[scanid][1])
-    print(len(instr_objs), print(len(scan_objs)))
-    print(len(objs_certain))
+    obj_container = scanid_to_objs[scanid]
+    instr_objs = set(obj_container[0])
+    scan_objs = set(obj_container[1])
+    print(len(instr_objs), len(scan_objs))
+    print("LEN CERTAIN =", len(objs_certain))
     instr = instr.lower().strip().split(" ")
     i = 0
     while i < len(instr):
