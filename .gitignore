@@ -18,11 +18,7 @@ tensorboard_logs
 *.t7
 */checkpoints
 *.tar
-/tasks/R2R/data/*.json
-/tasks/R2R/results/*.json
-/tasks/R2R/results/*/*.json
 
-/tasks/R2R/demo.py
 
 venv
 img_features
