@@ -163,8 +163,8 @@ class R2RBatch():
             self.tok = tokenizer
         scans = []
         objs_certain, scanid_to_objs = load_scan_objs_data()# ADDED
-        #for k,v in scanid_to_objs.items():
-        #    print(len(v[0]),len(v[1]))
+        for k,v in scanid_to_objs.items():
+            print(len(v[0]),len(v[1]))
 
         for split in splits:
             for item in load_datasets([split]):
