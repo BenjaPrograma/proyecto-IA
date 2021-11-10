@@ -15,7 +15,6 @@ def repickling4():
 
     with open(basepath + 'scanid_to_objs_and_aux_objs.pkl', 'wb') as f:
         pickle.dump(scanid_to_objs, f, 4)
-repickling4()
 
 def load_scan_objs_data():
     basepath = "tasks/R2R/data/useful/"
