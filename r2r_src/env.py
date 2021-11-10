@@ -179,7 +179,7 @@ class R2RBatch():
                     #print(instr)
                     copy_instr = copy.copy(instr)
                     fake_instr = swap_objs_using_scanid(objs_certain, scanid_to_objs, item['scan'], copy_instr, alpha=1)
-                    #print("fake instr type =",type(fake_instr))
+                    print("fake instr type =",type(fake_instr))
                     #new_item['fake_instructions'] = fake_instr
                     #print(fake_instr)
                     #print("###")
