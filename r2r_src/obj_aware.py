@@ -4,11 +4,13 @@ import random
 
 def load_scan_objs_data():
     basepath = "tasks/R2R/data/useful/"
-    with open(basepath + 'set_objs_certain_218.pkl', 'rb') as f:
-        objs_certain = pickle.loads(f)
+    #with open(basepath + 'set_objs_certain_218.pkl', 'rb') as f:
+    f = basepath + 'set_objs_certain_218.pkl'
+    objs_certain = pickle.loads(f)
 
-    with open(basepath + 'scanid_to_objs_and_aux_objs.pkl', 'rb') as f:
-        scanid_to_objs = pickle.loads(f)
+    #with open(basepath + 'scanid_to_objs_and_aux_objs.pkl', 'rb') as f:
+    f = basepath + 'scanid_to_objs_and_aux_objs.pkl'
+    scanid_to_objs = pickle.loads(f)
     return objs_certain, scanid_to_objs
 
 
