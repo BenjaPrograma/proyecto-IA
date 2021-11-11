@@ -774,6 +774,7 @@ class Seq2SeqAgent(BaseAgent):
                     print("MIX SHAPE",mix_ctx.shape)
                     vl_pair = torch.cat((h1,mix_ctx), dim=1)
                     prob = self.matching_network(vl_pair)
+                    print("PROB SHAPE", prob.shape)
                     mat_loss = F.binary_cross_entropy(prob,label) *args.matWeight
                     self.loss += mat_loss
 ##
