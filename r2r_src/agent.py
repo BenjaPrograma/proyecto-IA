@@ -747,31 +747,37 @@ class Seq2SeqAgent(BaseAgent):
                     batch_size = h1.shape[0]
                     mix_ctx = []
                     label = []
-                    print("DIM", args.rnn_dim)
-                    print("SHAPE H1",h1.shape)
-                    print("SHAPE H1 sl",h1.shape)
-                    print("SHAPE CTX",ctx.shape)
-                    print("SHAPE FAKE CTX",ctx_fake.shape)
-                    print("SHAPE CTX SLI",ctx[:,0,:].detach().shape)
-                    asd = torch.cat((h1, ctx[:,0,:]), dim=1)
-                    print("SHAPE TORCH CAT",asd.shape)
-                    self.logs["mat_loss"].append(0)
-                    #for _ in range(batch_size):
-                    #    if random.random() > 0.5:
-                    #        mix_ctx.append()
-                    #        label.append(0)
-                    #    else:
-                    #        mix_ctx.append()
-                    #        label.append(1)
-                    #label = torch.tensor(label)
-                    #label = label.float().cuda()
+                    #print("DIM", args.rnn_dim)
+                    #print("SHAPE H1",h1.shape)
+                    #print("SHAPE H1 sl",h1.shape)
+                    #print("SHAPE CTX",ctx.shape)
+                    #print("SHAPE FAKE CTX",ctx_fake.shape)
+                    #print("SHAPE CTX SLI",ctx[:,0,:].detach().shape)
+                    #asd = torch.cat((h1, ctx[:,0,:]), dim=1)
+                    ctx = ctx[:,0,:].detach()
+                    ctx_fake = ctx_fake[:,0,:].detach()
+                    #print("SHAPE TORCH CAT",asd.shape)
                     #
-                    #vl_pair = torch.cat(h1,mix_ctx)
-                    #prob = self.matching_network(vl_pair)
-                    #mat_loss = F.binary_cross_entropy(prob,label) *args.matWeight
-                    #self.loss += mat_loss
-#
-                    #self.logs["mat_loss"].append(mat_loss.detach())
+                    for i in range(batch_size):
+                        if random.random() > 0.5:
+                            mix_ctx.append(ctx_fake.select(1,i))
+                            label.append(0)
+                        else:
+                            mix_ctx.append(ctx.select(1,i))
+                            label.append(1)
+                    label = torch.tensor(label)
+                    label = label.float().cuda()
+                    print("SHAPE LABEL",label.shape)
+
+                    mix_ctx = torch.stack(mix_ctx).cuda()
+                    print("MIX SHAPE",mix_ctx.shape)
+                    vl_pair = torch.cat(h1,mix_ctx, dim=1)
+                    prob = self.matching_network(vl_pair)
+                    mat_loss = F.binary_cross_entropy(prob,label) *args.matWeight
+                    self.loss += mat_loss
+##
+                    self.logs["mat_loss"].append(mat_loss.detach())
+                    #self.logs["mat_loss"].append(0)
                 else:
                     self.logs["mat_loss"].append(0)
                 # IGUAL PODRIAMOS PROBAR PASANDOLE vl_ctx (global features)
