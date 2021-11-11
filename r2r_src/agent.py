@@ -109,7 +109,6 @@ class Seq2SeqAgent(BaseAgent):
         self.optimizers = (self.encoder_optimizer, self.decoder_optimizer, self.critic_optimizer)
 
         if args.aux_option:
-            # ESTO MARCA QUE SE QUIEREN LAS AUXRN
             #if args.modspe:
             #    self.speaker_decoder = model.SpeakerDecoder_SameLSTM(self.tok.vocab_size(), args.wemb,
             #                                                 self.tok.word_to_index['<PAD>'], args.rnn_dim,
@@ -119,6 +118,7 @@ class Seq2SeqAgent(BaseAgent):
             #                                                args.rnn_dim, args.dropout).cuda()
             self.progress_indicator = model.ProgressIndicator().cuda()
             self.matching_network = model.MatchingNetwork().cuda()
+            self.matching_instruction = model.MatchCorrectInstruction().cuda()
             self.feature_predictor = model.FeaturePredictor().cuda()
             self.angle_predictor = model.AnglePredictor().cuda()
             #if args.upload: 
@@ -133,14 +133,16 @@ class Seq2SeqAgent(BaseAgent):
 
             self.aux_optimizer = args.optimizer(
                 list(self.progress_indicator.parameters())
+                + list(self.matching_instruction.parameters())
                 + list(self.matching_network.parameters())
                 + list(self.feature_predictor.parameters())
                 + list(self.angle_predictor.parameters())
-                , lr=0.0001)
+                , lr=args.lr)
             self.all_tuple = [
                 ("encoder", self.encoder, self.encoder_optimizer),
                 ("decoder", self.decoder, self.decoder_optimizer),
                 ("critic", self.critic, self.critic_optimizer),
+                ("matching_instruction", self.matching_instruction, self.aux_optimizer),
                 ("progress_indicator", self.progress_indicator, self.aux_optimizer),
                 ("matching_network", self.matching_network, self.aux_optimizer),
                 ("feature_predictor", self.feature_predictor, self.aux_optimizer),
@@ -371,19 +373,19 @@ class Seq2SeqAgent(BaseAgent):
         # Reorder the language input for the encoder (do not ruin the original code)
         seq, seq_mask, seq_lengths, perm_idx = self._sort_batch(obs) 
         
-        seq_fake, _, seq_lengths_fake, _ = self._sort_batch_fake_objs(obs)
+        
         #print("SEQ INFO", seq_fake, seq_lengths_fake)
         perm_obs = obs[perm_idx]
 
         ctx, h_t, c_t = self.encoder(seq, seq_lengths) # SERA ESTE EL ENCODING FINAL?
 
-        with torch.no_grad():
-            # NO QUEREMOS GRAD
-            if seq_fake == None:
-                ctx_fake = None
-            else:
-                #print("hay algo")
-                ctx_fake, _, _ = self.encoder(seq_fake, seq_lengths_fake)
+        if args.matinsWeight != 0 and not (args.no_train_rl and train_rl):
+            seq_fake, _, seq_lengths_fake, _ = self._sort_batch_fake_objs(obs)
+            with torch.no_grad():
+                if seq_fake == None:
+                    ctx_fake = None
+                else:
+                    ctx_fake, _, _ = self.encoder(seq_fake, seq_lengths_fake)
 
         ctx_mask = seq_mask
         # Init the reward shaping
@@ -725,11 +727,8 @@ class Seq2SeqAgent(BaseAgent):
             else:
                 self.logs['pro_loss'].append(0)
             
-            # aux #3: inst matching
-            ## args.matWeight es el peso (es el menor de todos)
-
-            if abs(args.matWeight - 0) > eps and not (args.no_train_rl and train_rl):
-
+            # AUX MATCH INSTRUCTION CUSTOM
+            if abs(args.matinsWeight - 0) > eps and not (args.no_train_rl and train_rl):
                 ## QUEREMOS USAR LO QUE VIO (VISUAL FEATURES + ATTENTION)
                 ## Y CONCATENARLO AL FINAL CON UN ENCODING DE GLOBAL LANGUAGE
                 ## QUE SEA OBTENIDO POR HACER UN FAKE CON FAKE OBJS O REAL
@@ -738,7 +737,7 @@ class Seq2SeqAgent(BaseAgent):
                 ## esta bien.
                 ## TOMA EL CTX, PODEMOS CREAR UN CTX FAKE CON self.encoding, requires_grad=false
                 ## SI ESQ PODEMOS CREAR EN EL .json un fake_instruction
-
+                
                 if ctx_fake != None:
                     #if args.modmat:
                     for i in range(v_ctx.shape[1]):
@@ -782,63 +781,64 @@ class Seq2SeqAgent(BaseAgent):
                     #print("PROB SHAPE", prob.shape)
                     #prob = prob.select(0,0)
 
-                    mat_loss = F.binary_cross_entropy(prob,label) *args.matWeight
-                    self.loss += mat_loss
-##
-                    self.logs["mat_loss"].append(mat_loss.detach())
-                    #self.logs["mat_loss"].append(0)
-                else:
-                    self.logs["mat_loss"].append(0)
-                # IGUAL PODRIAMOS PROBAR PASANDOLE vl_ctx (global features)
-                # EL PROBLEMA ESQ LE ESTAMOS PASANDO EL LENGUAJE DESDE ANTES.
+                    matins_loss = F.binary_cross_entropy(prob,label) *args.matinsWeight
+                    self.loss += matins_loss
 
-                
-                #    batch_size = h1.shape[0]
-                #    rand_idx = torch.randperm(batch_size)
-                #    order_idx = torch.arange(0, batch_size)
-                #    matching_mask = torch.empty(batch_size).random_(2).bool()
-                #    same_idx = rand_idx == order_idx
-                #    label = (matching_mask | same_idx).float().unsqueeze(1).cuda()  # 1 same, 0 different
-                #    if args.mat_detach:
-                #        l_ctx = ctx[:,0,:].detach()
-                #        # l_ctx = torch.cat((ctx[:,0,:], ctx[:,-1,:]), dim=1).detach()
-                #    else:
-                #        # l_ctx = torch.cat((ctx[:,0,:], ctx[:,-1,:]), dim=1)
-                #        l_ctx = ctx[:,0,:]
-                #    new_h1 = label * h1 + (1 - label) * h1[rand_idx, :]
-                #    new_l_ctx = label * l_ctx + (1 - label) * l_ctx[rand_idx, :]
-                #    # ALGO SIMILAR
-                #    
-                #    # vl_pair = torch.cat((new_h1, h1), dim=1)
-                #    # vl_pair = torch.cat((new_l_ctx, l_ctx), dim=1)
-                #    prob = self.matching_network(new_h1, l_ctx)
-                #    prob1 = self.matching_network(new_h1, h1)
-                #    prob2 = self.matching_network(new_l_ctx, l_ctx)
-                #    mat_loss = F.binary_cross_entropy(prob, label) * args.matWeight
-                #    mat_loss1 = F.binary_cross_entropy(prob1, label) * args.matWeight
-                #    mat_loss2 = F.binary_cross_entropy(prob2, label) * args.matWeight
-                #    self.loss += mat_loss + mat_loss1 + mat_loss2
-                #else:
-                #    h1 = v_ctx[:, -1, :]
-                #    batch_size = h1.shape[0]
-                #    rand_idx = torch.randperm(batch_size)
-                #    order_idx = torch.arange(0, batch_size)
-                #    matching_mask = torch.empty(batch_size).random_(2).bool()
-                #    same_idx = rand_idx == order_idx
-                #    label = (matching_mask | same_idx).float().unsqueeze(1).cuda()  # 1 same, 0 different
-                #    new_h1 = label * h1 + (1 - label) * h1[rand_idx, :]
-                #    # HACER ALGO SIMILAR?
-                #    l_ctx = ctx[:,0,:].detach()
-                #    vl_pair = torch.cat((new_h1, l_ctx), dim=1)
-                #    prob = self.matching_network(vl_pair)
-                #    mat_loss = F.binary_cross_entropy(prob, label) * args.matWeight
-                #    if args.mat_mask:
-                #        label_mask = ~decode_mask[:, -1]
-                #        label_mask = label_mask & label_mask[rand_idx]
-                #        mat_loss = F.binary_cross_entropy(prob, label, reduce=False) * args.matWeight
-                #        mat_loss = torch.mean(mat_loss.squeeze() * label_mask.float())
-                #    self.loss += mat_loss
-                #self.logs['mat_loss'].append(mat_loss.detach())
+            # aux #3: inst matching
+            ## args.matWeight es el peso (es el menor de todos)
+
+            if abs(args.matWeight - 0) > eps and not (args.no_train_rl and train_rl):
+                if args.modmat:
+                    for i in range(v_ctx.shape[1]):
+                        if i == 0:
+                            h1 = v_ctx[:, i, :]
+                        else:
+                            _h1 = v_ctx[:, i, :]
+                            valid_mask = ~decode_mask[:, i] # True: move, False: already finished BEFORE THIS ACTION
+                            h1 = h1 * (1-valid_mask.float().unsqueeze(1)) + _h1 * valid_mask.float().unsqueeze(1) # update active feature
+                    batch_size = h1.shape[0]
+                    rand_idx = torch.randperm(batch_size)
+                    order_idx = torch.arange(0, batch_size)
+                    matching_mask = torch.empty(batch_size).random_(2).bool()
+                    same_idx = rand_idx == order_idx
+                    label = (matching_mask | same_idx).float().unsqueeze(1).cuda()  # 1 same, 0 different
+                    if args.mat_detach:
+                        l_ctx = ctx[:,0,:].detach()
+                        # l_ctx = torch.cat((ctx[:,0,:], ctx[:,-1,:]), dim=1).detach()
+                    else:
+                        # l_ctx = torch.cat((ctx[:,0,:], ctx[:,-1,:]), dim=1)
+                        l_ctx = ctx[:,0,:]
+                    new_h1 = label * h1 + (1 - label) * h1[rand_idx, :]
+                    new_l_ctx = label * l_ctx + (1 - label) * l_ctx[rand_idx, :]
+                    # vl_pair = torch.cat((new_h1, h1), dim=1)
+                    # vl_pair = torch.cat((new_l_ctx, l_ctx), dim=1)
+                    prob = self.matching_network(new_h1, l_ctx)
+                    prob1 = self.matching_network(new_h1, h1)
+                    prob2 = self.matching_network(new_l_ctx, l_ctx)
+                    mat_loss = F.binary_cross_entropy(prob, label) * args.matWeight
+                    mat_loss1 = F.binary_cross_entropy(prob1, label) * args.matWeight
+                    mat_loss2 = F.binary_cross_entropy(prob2, label) * args.matWeight
+                    self.loss += mat_loss + mat_loss1 + mat_loss2
+                else:
+                    h1 = v_ctx[:, -1, :]
+                    batch_size = h1.shape[0]
+                    rand_idx = torch.randperm(batch_size)
+                    order_idx = torch.arange(0, batch_size)
+                    matching_mask = torch.empty(batch_size).random_(2).bool()
+                    same_idx = rand_idx == order_idx
+                    label = (matching_mask | same_idx).float().unsqueeze(1).cuda()  # 1 same, 0 different
+                    new_h1 = label * h1 + (1 - label) * h1[rand_idx, :]
+                    l_ctx = ctx[:,0,:].detach()
+                    vl_pair = torch.cat((new_h1, l_ctx), dim=1)
+                    prob = self.matching_network(vl_pair)
+                    mat_loss = F.binary_cross_entropy(prob, label) * args.matWeight
+                    if args.mat_mask:
+                        label_mask = ~decode_mask[:, -1]
+                        label_mask = label_mask & label_mask[rand_idx]
+                        mat_loss = F.binary_cross_entropy(prob, label, reduce=False) * args.matWeight
+                        mat_loss = torch.mean(mat_loss.squeeze() * label_mask.float())
+                    self.loss += mat_loss
+                self.logs['mat_loss'].append(mat_loss.detach())
             else:
                 self.logs['mat_loss'].append(0)
             
@@ -1181,7 +1181,7 @@ class Seq2SeqAgent(BaseAgent):
 
     def optim_step(self):
         self.loss.backward()
-        print("TOTAL LOSS =",self.loss )
+        #print("TOTAL LOSS =",self.loss )
         #torch.nn.utils.clip_grad_norm(self.encoder.parameters(), 40.)
         #torch.nn.utils.clip_grad_norm(self.decoder.parameters(), 40.)
         

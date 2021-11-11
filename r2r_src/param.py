@@ -54,6 +54,7 @@ class Param:
         self.parser.add_argument('--speWeight', type=float, default=0)
         self.parser.add_argument('--proWeight', type=float, default=0)
         self.parser.add_argument('--matWeight', type=float, default=0)
+        self.parser.add_argument('--matinsWeight', type=float, default=0)
         self.parser.add_argument('--feaWeight', type=float, default=0)
         self.parser.add_argument('--angWeight', type=float, default=0)
         self.parser.add_argument("--modspe", action='store_const', default=False, const=True)

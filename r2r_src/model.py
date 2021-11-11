@@ -25,21 +25,17 @@ class MatchingNetwork(nn.Module):
         super(MatchingNetwork, self).__init__()
         hidden_size = args.rnn_dim
         self.fc1 = nn.Linear(hidden_size*2, hidden_size)
-        #if args.mat_mul:
-            #self.fc1 = nn.Linear(hidden_size, hidden_size)
-        #else:
-       #     self.fc1 = nn.Linear(hidden_size * 2, hidden_size)
+        if args.mat_mul:
+            self.fc1 = nn.Linear(hidden_size, hidden_size)
+        else:
+            self.fc1 = nn.Linear(hidden_size * 2, hidden_size)
         self.relu1 = nn.LeakyReLU()
         self.fc2 = nn.Linear(hidden_size, 1)
         self.sigmoid = nn.Sigmoid()
 
-    def forward(self, h):
-        h = self.relu1(self.fc1(h))
-        h = self.sigmoid(self.fc2(h))
-        # h = torch.mean(h, dim=1) # pooling, harm performance
-        return h
 
-    def __forward(self, h1, ctx):
+
+    def forward(self, h1, ctx):
         if args.mat_norm:
             h1 = h1 / (torch.norm(h1, dim=1).unsqueeze(1)+1e-6)
             ctx = ctx / (torch.norm(ctx, dim=1).unsqueeze(1)+1e-6)
@@ -51,6 +47,23 @@ class MatchingNetwork(nn.Module):
         h = self.sigmoid(self.fc2(h))
         # h = torch.mean(h, dim=1) # pooling, harm performance
         return h
+
+
+class MatchCorrectInstruction(nn.Module):
+    def __init__(self):
+        super(MatchCorrectInstruction, self).__init__()
+        hidden_size = args.rnn_dim
+        self.fc1 = nn.Linear(hidden_size*2, hidden_size)
+        self.relu1 = nn.LeakyReLU()
+        self.fc2 = nn.Linear(hidden_size, 1)
+        self.sigmoid = nn.Sigmoid()
+
+    def forward(self, h):
+        h = self.relu1(self.fc1(h))
+        h = self.sigmoid(self.fc2(h))
+        return h
+
+
 
 class FeaturePredictor(nn.Module):
     def __init__(self):

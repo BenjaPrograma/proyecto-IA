@@ -2,6 +2,8 @@
 - Repositorio utilizado/ejecutado en COLAB: 
 https://colab.research.google.com/drive/1I-_81IKBNIwOXX6rJqAllNHTRptX1oun?authuser=1#scrollTo=0AJVw3Fp1AdO
 
+--matinsWeight 0.1 
+
 train.py -> train_val -> (R2RBatch -> load_datasets), train -> Seq2Seq init -> Seq2Seq.train
 
 
