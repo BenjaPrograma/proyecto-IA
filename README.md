@@ -40,9 +40,8 @@ nvidia-docker run -it --mount type=bind,source="/mnt/d/BACKUP 05-10-2021 FORMAT/
 export MATTERPORT_DATA_DIR=
 
 ## TODO
--- Ver como cambiar OBJS por NADA
--- Ver como cambiar OBJS por OBJS no presentes
--- Swappear OBJS dentro de una oracion
+- Que se haga el fake instruction dentro del rollout (asi sirve para el resto de was?)
+
 
 ## COSAS WORK
 

@@ -188,21 +188,31 @@ class Seq2SeqAgent(BaseAgent):
                list(seq_lengths), list(perm_idx)
 
     def _sort_batch_fake_objs(self, obs):
-        seq_tensor = np.array([ob['fake_instr_encoding'] for ob in obs])
-        seq_lengths = np.argmax(seq_tensor == padding_idx, axis=1)
-        seq_lengths[seq_lengths == 0] = seq_tensor.shape[1]     # Full length
+        skip = False
+        for ob in obs:
+            if "fake_instr_encoding" not in ob:
+                skip = True
+                break
+            else:
+                break
+        if not skip:
+            seq_tensor = np.array([ob['fake_instr_encoding'] for ob in obs])
+            seq_lengths = np.argmax(seq_tensor == padding_idx, axis=1)
+            seq_lengths[seq_lengths == 0] = seq_tensor.shape[1]     # Full length
 
-        seq_tensor = torch.from_numpy(seq_tensor)
-        seq_lengths = torch.from_numpy(seq_lengths)
+            seq_tensor = torch.from_numpy(seq_tensor)
+            seq_lengths = torch.from_numpy(seq_lengths)
 
-        # Sort sequences by lengths
-        seq_lengths, perm_idx = seq_lengths.sort(0, True)       # True -> descending
-        sorted_tensor = seq_tensor[perm_idx]
-        mask = (sorted_tensor == padding_idx)[:,:seq_lengths[0]]    # seq_lengths[0] is the Maximum length
+            # Sort sequences by lengths
+            seq_lengths, perm_idx = seq_lengths.sort(0, True)       # True -> descending
+            sorted_tensor = seq_tensor[perm_idx]
+            mask = (sorted_tensor == padding_idx)[:,:seq_lengths[0]]    # seq_lengths[0] is the Maximum length
 
-        return Variable(sorted_tensor, requires_grad=False).long().cuda(), \
-               mask.byte().cuda(),  \
-               list(seq_lengths), list(perm_idx)
+            return Variable(sorted_tensor, requires_grad=False).long().cuda(), \
+                mask.byte().cuda(),  \
+                list(seq_lengths), list(perm_idx)
+        else:
+            return None, None, None, None
     def _feature_variable(self, obs):
         ''' Extract precomputed features into variable. '''
         if args.sparseObj:
@@ -716,7 +726,7 @@ class Seq2SeqAgent(BaseAgent):
             
             # aux #3: inst matching
             ## args.matWeight es el peso (es el menor de todos)
-            a = False
+            a = True
             if abs(args.matWeight - 0) > eps and not (args.no_train_rl and train_rl):
 
                 ## QUEREMOS USAR LO QUE VIO (VISUAL FEATURES + ATTENTION)
@@ -728,7 +738,7 @@ class Seq2SeqAgent(BaseAgent):
                 ## TOMA EL CTX, PODEMOS CREAR UN CTX FAKE CON self.encoding, requires_grad=false
                 ## SI ESQ PODEMOS CREAR EN EL .json un fake_instruction
                 # TODO
-                if a:
+                if ctx_fake != None:
                     batch_size = h1.shape[0]
                     mix_ctx = []
                     label = []
@@ -738,6 +748,7 @@ class Seq2SeqAgent(BaseAgent):
                     print("SHAPE CTX",ctx.shape)
                     print("SHAPE FAKE CTX",ctx_fake.shape)
                     print("SHAPE CTX SLI",ctx.shape[:,0,:].detach())
+                    self.logs["mat_loss"].append(0)
                     #for _ in range(batch_size):
                     #    if random.random() > 0.5:
                     #        mix_ctx.append()
