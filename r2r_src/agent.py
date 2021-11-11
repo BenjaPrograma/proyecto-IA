@@ -760,17 +760,17 @@ class Seq2SeqAgent(BaseAgent):
                     #
                     for i in range(batch_size):
                         if random.random() > 0.5:
-                            mix_ctx.append(ctx_fake.select(1,i))
+                            mix_ctx.append(ctx_fake.select(0,i))
                             label.append(0)
                         else:
-                            mix_ctx.append(ctx.select(1,i))
+                            mix_ctx.append(ctx.select(0,i))
                             label.append(1)
                     label = torch.tensor(label)
                     label = label.float().cuda()
                     print("SHAPE LABEL",label.shape)
 
                     mix_ctx = torch.stack(mix_ctx).cuda()
-                    print("SHAPE SELECT",ctx_fake.select(1,i).shape)
+                    print("SHAPE SELECT",ctx_fake.select(0,i).shape)
                     print("MIX SHAPE",mix_ctx.shape)
                     vl_pair = torch.cat((h1,mix_ctx), dim=1)
                     prob = self.matching_network(vl_pair)
