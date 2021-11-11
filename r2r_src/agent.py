@@ -136,7 +136,7 @@ class Seq2SeqAgent(BaseAgent):
                 + list(self.matching_network.parameters())
                 + list(self.feature_predictor.parameters())
                 + list(self.angle_predictor.parameters())
-                , lr=0.1)
+                , lr=0.001)
         
             self.all_tuple = [
                 ("encoder", self.encoder, self.encoder_optimizer),
