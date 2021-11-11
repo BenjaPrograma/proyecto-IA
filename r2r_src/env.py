@@ -163,10 +163,7 @@ class R2RBatch():
             self.tok = tokenizer
         scans = []
         objs_certain, scanid_to_objs = load_scan_objs_data()# ADDED
-        for k,v in scanid_to_objs.items():
-            print(len(v[0]),len(v[1]))
-        print("8194nk5LbLH" in scanid_to_objs)
-        print("AAA", scanid_to_objs["8194nk5LbLH"])
+
         for split in splits:
             for item in load_datasets([split]):
                 # Split multiple instructions into separate entries
@@ -176,17 +173,16 @@ class R2RBatch():
                     new_item = dict(item)
                     new_item['instr_id'] = '%s_%d' % (item['path_id'], j)
                     new_item['instructions'] = instr
-                    #print("vanilla instr type =", type(instr))
-                    #print(instr)
+                    print("vanilla instr type =", instr)
                     copy_instr = copy.copy(instr)
-                    fake_instr = swap_objs_using_scanid(objs_certain, scanid_to_objs, item['scan'], copy_instr, alpha=1)
-                    #print("fake instr type =",type(fake_instr))
-                    #new_item['fake_instructions'] = fake_instr
-                    #print(fake_instr)
-                    #print("###")
+                    if item["scan"] in scanid_to_objs:
+                        fake_instr = swap_objs_using_scanid(objs_certain, scanid_to_objs, item['scan'], copy_instr, alpha=1)
+                        print("fake instr type =",fake_instr)
+
                     if tokenizer:
                         new_item['instr_encoding'] = tokenizer.encode_sentence(instr)
-                        #new_item['fake_instr_encoding'] = tokenizer.encode_sentence=(fake_instr)
+                        if item["scan"] in scanid_to_objs:
+                            new_item['fake_instr_encoding'] = tokenizer.encode_sentence(fake_instr)
                     if not tokenizer or new_item['instr_encoding'] is not None:  # Filter the wrong data
                         self.data.append(new_item)
                         scans.append(item['scan'])
