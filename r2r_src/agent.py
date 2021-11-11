@@ -385,7 +385,7 @@ class Seq2SeqAgent(BaseAgent):
             if seq_fake == None:
                 ctx_fake = None
             else:
-                print("hay algo")
+                #print("hay algo")
                 ctx_fake, _, _ = self.encoder(seq_fake, seq_lengths_fake)
 
         ctx_mask = seq_mask
