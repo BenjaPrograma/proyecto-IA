@@ -754,7 +754,7 @@ class Seq2SeqAgent(BaseAgent):
                     ctx = ctx[:,0,:].detach()
                     ctx_fake = ctx_fake[:,0,:].detach()
                     for i in range(batch_size):
-                        if random.random() > 0.5:
+                        if random.random() > 0.8:
                             mix_ctx.append(ctx_fake.select(0,i))
                             label.append(0)
                         else:
