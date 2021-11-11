@@ -365,7 +365,7 @@ class Seq2SeqAgent(BaseAgent):
         seq, seq_mask, seq_lengths, perm_idx = self._sort_batch(obs) 
         
         seq_fake, _, seq_lengths_fake, _ = self._sort_batch_fake_objs(obs)
-        print("SEQ INFO", seq_fake, seq_lengths_fake)
+        #print("SEQ INFO", seq_fake, seq_lengths_fake)
         perm_obs = obs[perm_idx]
 
         ctx, h_t, c_t = self.encoder(seq, seq_lengths) # SERA ESTE EL ENCODING FINAL?
