@@ -46,6 +46,7 @@ export MATTERPORT_DATA_DIR=
 - Probar con redes de atencion? u otros embeddings
 - LEER LXMERT
 - PODRIA HACER QUE ESTA RED PASE DE NUEVO POR EL DECODER UNIVERSAL Y VER QUE VOMITA Y PROPAGAR ERROR PARA ATRAS.
+- O de alguna forma usar un componente de atencion, que influya para atras y ayude.
 
 fter we have forwarded an agent batch from different starting
 points with different instructions, there are three kinds of trajec-
