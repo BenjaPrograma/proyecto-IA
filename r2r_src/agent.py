@@ -109,26 +109,13 @@ class Seq2SeqAgent(BaseAgent):
         self.optimizers = (self.encoder_optimizer, self.decoder_optimizer, self.critic_optimizer)
 
         if args.aux_option:
-            #if args.modspe:
-            #    self.speaker_decoder = model.SpeakerDecoder_SameLSTM(self.tok.vocab_size(), args.wemb,
-            #                                                 self.tok.word_to_index['<PAD>'], args.rnn_dim,
-            #                                                 args.dropout).cuda()
-            #else:
-            #    self.speaker_decoder = model.SpeakerDecoder(self.tok.vocab_size(), args.wemb, self.tok.word_to_index['<PAD>'],
-            #                                                args.rnn_dim, args.dropout).cuda()
+
             self.progress_indicator = model.ProgressIndicator().cuda()
             self.matching_network = model.MatchingNetwork().cuda()
             self.matching_instruction = model.MatchCorrectInstruction().cuda()
             self.feature_predictor = model.FeaturePredictor().cuda()
             self.angle_predictor = model.AnglePredictor().cuda()
-            #if args.upload: 
-                # ACA DUDAS SI ESTARA BIEN EL DIRECTORIO DE CARGA Y DE
-                # UPLOAD
-                #speaker_model = get_sync_dir('lyx/snap/speaker/state_dict/best_val_unseen_bleu')
-            #else:
-                #speaker_model = os.path.join(args.R2R_Aux_path, 'snap/speaker/state_dict/best_val_unseen_bleu')
-            #states = torch.load(speaker_model)
-            #self.speaker_decoder.load_state_dict(states["decoder"]["state_dict"])
+
             self.aux_models = (self.progress_indicator, self.matching_network, self.feature_predictor, self.angle_predictor)
 
             self.aux_optimizer = args.optimizer(
@@ -1181,15 +1168,14 @@ class Seq2SeqAgent(BaseAgent):
 
     def optim_step(self):
         self.loss.backward()
-        #print("TOTAL LOSS =",self.loss )
-        #torch.nn.utils.clip_grad_norm(self.encoder.parameters(), 40.)
-        #torch.nn.utils.clip_grad_norm(self.decoder.parameters(), 40.)
+        print("TOTAL LOSS =",self.loss )
+        torch.nn.utils.clip_grad_norm(self.encoder.parameters(), 40.)
+        torch.nn.utils.clip_grad_norm(self.decoder.parameters(), 40.)
         
         self.encoder_optimizer.step()
         self.decoder_optimizer.step()
         self.critic_optimizer.step()
-        if args.aux_option:
-            self.aux_optimizer.step()
+        self.aux_optimizer.step()
 
     def train(self, n_iters, feedback='teacher', **kwargs):
         ''' Train for a given number of iterations '''
@@ -1219,14 +1205,18 @@ class Seq2SeqAgent(BaseAgent):
             else:
                 assert False
 
-            self.loss.backward()
-
-            torch.nn.utils.clip_grad_norm(self.encoder.parameters(), 40.)
-            torch.nn.utils.clip_grad_norm(self.decoder.parameters(), 40.)
-
-            self.encoder_optimizer.step()
-            self.decoder_optimizer.step()
-            self.critic_optimizer.step()
+            if args.aux_option:
+                ## ESTO NO ESTABA ASI INICIALMENTE
+                self.optim_step()
+            else:
+                self.loss.backward()
+#
+                torch.nn.utils.clip_grad_norm(self.encoder.parameters(), 40.)
+                torch.nn.utils.clip_grad_norm(self.decoder.parameters(), 40.)
+#
+                self.encoder_optimizer.step()
+                self.decoder_optimizer.step()
+                self.critic_optimizer.step()
 
     def save(self, epoch, path):
         ''' Snapshot models '''
