@@ -729,7 +729,7 @@ class Seq2SeqAgent(BaseAgent):
             
             # aux #3: inst matching
             ## args.matWeight es el peso (es el menor de todos)
-            a = True
+
             if abs(args.matWeight - 0) > eps and not (args.no_train_rl and train_rl):
 
                 ## QUEREMOS USAR LO QUE VIO (VISUAL FEATURES + ATTENTION)
@@ -741,6 +741,7 @@ class Seq2SeqAgent(BaseAgent):
                 ## TOMA EL CTX, PODEMOS CREAR UN CTX FAKE CON self.encoding, requires_grad=false
                 ## SI ESQ PODEMOS CREAR EN EL .json un fake_instruction
                 # TODO
+                print("IN MAT WEIGHT?")
                 if ctx_fake != None:
                     batch_size = h1.shape[0]
                     mix_ctx = []
