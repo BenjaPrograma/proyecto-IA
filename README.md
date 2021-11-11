@@ -42,8 +42,28 @@ export MATTERPORT_DATA_DIR=
 ## TODO
 - Que se haga el fake instruction dentro del rollout (asi sirve para el resto de was?)
 - Detector de objetos con NLTK, viendo si no es verbo, esta en lista de obj y cosas asi. Para que no detecte "walk" y los cambie
-- 
+- Probar analizando las oraciones
+- Probar con redes de atencion? u otros embeddings
+- LEER LXMERT
+- PODRIA HACER QUE ESTA RED PASE DE NUEVO POR EL DECODER UNIVERSAL Y VER QUE VOMITA Y PROPAGAR ERROR PARA ATRAS.
 
+fter we have forwarded an agent batch from different starting
+points with different instructions, there are three kinds of trajec-
+tories: 1) the unfinished trajectory, which has not output a ‘stop’
+action; 2) the trajectory just completed, which has just output a
+‘stop’ action; 3) the trajectory completed before, which has output
+a ‘stop’ action a few steps ago. However, in implementation,
+since we use temporally forward batches to update our LSTM
+state, the vision encoding representing a trajectory is updated each
+time. Even though the trajectory is completed, its representation is
+updated by the current view image. On the other hand, we find that
+a trajectory that is incomplete does not align well with the corre-
+sponding instruction since some semantics are missing. Previous
+work that neglects the above two situations could introduce noise
+into the auxiliary task. Therefore, we propose an O(n) algorithm
+to generate data and mask out the noise, as shown in Algo. 1.
+
+-Entrenar con el Shortest path la tarea aux y ver la loss
 ## COSAS WORK
 
 - COMO OBTENER OBJETOS DE UN PATH_ID?

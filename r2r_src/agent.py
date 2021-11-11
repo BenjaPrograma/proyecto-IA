@@ -136,8 +136,7 @@ class Seq2SeqAgent(BaseAgent):
                 + list(self.matching_network.parameters())
                 + list(self.feature_predictor.parameters())
                 + list(self.angle_predictor.parameters())
-                , lr=0.001)
-        
+                , lr=0.0001)
             self.all_tuple = [
                 ("encoder", self.encoder, self.encoder_optimizer),
                 ("decoder", self.decoder, self.decoder_optimizer),
@@ -741,6 +740,18 @@ class Seq2SeqAgent(BaseAgent):
                 ## SI ESQ PODEMOS CREAR EN EL .json un fake_instruction
 
                 if ctx_fake != None:
+                    #if args.modmat:
+                    for i in range(v_ctx.shape[1]):
+                        # CREA UN ARREGLO NUEVO DE H1
+                        if i == 0:
+                            h1 = v_ctx[:, i, :]
+                        else:
+                            _h1 = v_ctx[:, i, :]
+                            valid_mask = ~decode_mask[:, i] # True: move, False: already finished BEFORE THIS ACTION
+                            h1 = h1 * (1-valid_mask.float().unsqueeze(1)) + _h1 * valid_mask.float().unsqueeze(1) # update active feature
+                            # SI ES MOVIMIENTO, LE AGREGA A H1 LA SUMA
+                            # SI YA TERMINO LA DEJA IGUAL
+                    
                     batch_size = h1.shape[0]
                     mix_ctx = []
                     label = []
@@ -781,14 +792,7 @@ class Seq2SeqAgent(BaseAgent):
                 # IGUAL PODRIAMOS PROBAR PASANDOLE vl_ctx (global features)
                 # EL PROBLEMA ESQ LE ESTAMOS PASANDO EL LENGUAJE DESDE ANTES.
 
-                #if args.modmat:
-                #    for i in range(v_ctx.shape[1]):
-                #        if i == 0:
-                #            h1 = v_ctx[:, i, :]
-                #        else:
-                #            _h1 = v_ctx[:, i, :]
-                #            valid_mask = ~decode_mask[:, i] # True: move, False: already finished BEFORE THIS ACTION
-                #            h1 = h1 * (1-valid_mask.float().unsqueeze(1)) + _h1 * valid_mask.float().unsqueeze(1) # update active feature
+                
                 #    batch_size = h1.shape[0]
                 #    rand_idx = torch.randperm(batch_size)
                 #    order_idx = torch.arange(0, batch_size)
