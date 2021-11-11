@@ -136,7 +136,7 @@ class Seq2SeqAgent(BaseAgent):
                 + list(self.matching_network.parameters())
                 + list(self.feature_predictor.parameters())
                 + list(self.angle_predictor.parameters())
-                , lr=args.lr)
+                , lr=0.1)
         
             self.all_tuple = [
                 ("encoder", self.encoder, self.encoder_optimizer),
@@ -754,7 +754,7 @@ class Seq2SeqAgent(BaseAgent):
                     ctx = ctx[:,0,:].detach()
                     ctx_fake = ctx_fake[:,0,:].detach()
                     for i in range(batch_size):
-                        if random.random() > 0.8:
+                        if random.random() > 0.5:
                             mix_ctx.append(ctx_fake.select(0,i))
                             label.append(0)
                         else:
