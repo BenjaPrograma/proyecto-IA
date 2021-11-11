@@ -752,7 +752,7 @@ class Seq2SeqAgent(BaseAgent):
                     print("SHAPE H1 sl",h1.shape)
                     print("SHAPE CTX",ctx.shape)
                     print("SHAPE FAKE CTX",ctx_fake.shape)
-                    print("SHAPE CTX SLI",ctx.shape[:,0,:].detach())
+                    print("SHAPE CTX SLI",ctx[:,0,:].detach().shape)
                     self.logs["mat_loss"].append(0)
                     #for _ in range(batch_size):
                     #    if random.random() > 0.5:

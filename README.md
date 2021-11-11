@@ -41,7 +41,8 @@ export MATTERPORT_DATA_DIR=
 
 ## TODO
 - Que se haga el fake instruction dentro del rollout (asi sirve para el resto de was?)
-
+- Detector de objetos con NLTK, viendo si no es verbo, esta en lista de obj y cosas asi. Para que no detecte "walk" y los cambie
+- 
 
 ## COSAS WORK
 
