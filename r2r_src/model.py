@@ -24,7 +24,7 @@ class MatchingNetwork(nn.Module):
     def __init__(self):
         super(MatchingNetwork, self).__init__()
         hidden_size = args.rnn_dim
-        self.fc1 = nn.Linear(hidden_size, hidden_size)
+        self.fc1 = nn.Linear(hidden_size*2, hidden_size)
         #if args.mat_mul:
             #self.fc1 = nn.Linear(hidden_size, hidden_size)
         #else:
