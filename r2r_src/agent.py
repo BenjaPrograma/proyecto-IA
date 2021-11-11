@@ -753,7 +753,7 @@ class Seq2SeqAgent(BaseAgent):
                     print("SHAPE CTX",ctx.shape)
                     print("SHAPE FAKE CTX",ctx_fake.shape)
                     print("SHAPE CTX SLI",ctx[:,0,:].detach().shape)
-                    asd = torch.cat((h1, ctx), dim=1)
+                    asd = torch.cat((h1, ctx[:,0,:]), dim=1)
                     print("SHAPE TORCH CAT",asd)
                     self.logs["mat_loss"].append(0)
                     #for _ in range(batch_size):
