@@ -370,7 +370,9 @@ class Seq2SeqAgent(BaseAgent):
 
         ctx, h_t, c_t = self.encoder(seq, seq_lengths) # SERA ESTE EL ENCODING FINAL?
 
-        ctx_fake, h_fake, c_fake = self.encoder(seq_fake, seq_lengths_fake)
+        with torch.no_grad():
+            # NO QUEREMOS GRAD
+            ctx_fake, h_fake, c_fake = self.encoder(seq_fake, seq_lengths_fake)
         print("ctx_info",ctx_fake)
         print("extra_info", h_fake)
         print("extra_info",c_fake)
