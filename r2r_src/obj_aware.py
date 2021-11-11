@@ -32,8 +32,6 @@ def load_scan_objs_data():
 
 def swap_objs_using_scanid(objs_certain, scanid_to_objs, scanid, instr, alpha=1):
     obj_container = scanid_to_objs[scanid]
-    if obj_container == []:
-        print(scanid)
         #print(scanid_to_objs)
     instr_objs = set(obj_container[0])
     scan_objs = set(obj_container[1])

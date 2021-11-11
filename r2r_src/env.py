@@ -177,7 +177,7 @@ class R2RBatch():
                     copy_instr = copy.copy(instr)
                     if item["scan"] in scanid_to_objs:
                         fake_instr = swap_objs_using_scanid(objs_certain, scanid_to_objs, item['scan'], copy_instr, alpha=1)
-                        print("fake instr type =",fake_instr)
+                        #print("fake instr type =",fake_instr)
 
                     if tokenizer:
                         new_item['instr_encoding'] = tokenizer.encode_sentence(instr)
