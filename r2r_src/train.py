@@ -227,8 +227,7 @@ def train(train_env, tok, n_iters, log_every=100, val_envs={}, aug_env=None):
         writer.add_scalar("max_rl_length", max_rl_length, idx)
         writer.add_scalar("loss/critic", critic_loss, idx)
         writer.add_scalar("loss/unsupervised", predict_loss, idx)
-        print("mat_loss")
-        print(listner.logs["mat_loss"])
+        print("MAT LOSS =", mat_loss)
         print("total_actions", total)
         print("max_rl_length", max_rl_length)
 

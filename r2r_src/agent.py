@@ -739,8 +739,7 @@ class Seq2SeqAgent(BaseAgent):
                 ## esta bien.
                 ## TOMA EL CTX, PODEMOS CREAR UN CTX FAKE CON self.encoding, requires_grad=false
                 ## SI ESQ PODEMOS CREAR EN EL .json un fake_instruction
-                # TODO
-                #print("IN MAT WEIGHT?")
+
                 if ctx_fake != None:
                     batch_size = h1.shape[0]
                     mix_ctx = []
@@ -754,8 +753,6 @@ class Seq2SeqAgent(BaseAgent):
                     #asd = torch.cat((h1, ctx[:,0,:]), dim=1)
                     ctx = ctx[:,0,:].detach()
                     ctx_fake = ctx_fake[:,0,:].detach()
-                    #print("SHAPE TORCH CAT",asd.shape)
-                    #
                     for i in range(batch_size):
                         if random.random() > 0.5:
                             mix_ctx.append(ctx_fake.select(0,i))
