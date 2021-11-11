@@ -52,15 +52,24 @@ def main():
 
 def evaluate():
     
-    basepath = "tasks/R2R/data/all_objs_file"
+    basepath = "tasks/R2R/data/all_obj_files/"
     obj_list = []
-    with open(basepath + 'spacy_all_objs_from_instruction_val_495.pkl', 'rb') as f:
-        obj_list = pickle.load(f)
-    
+    with open(basepath + 'spacy_all_objs_from_instruction_val_495.txt', 'r') as f:
+        for line in f:
+            line = line.strip()
+            obj_list.append(line)
+
     spacy.prefer_gpu()
     #nlp = spacy.load("en_core_web_trf") # SLOWER BUT MORE ACC
     nlp = spacy.load("en_core_web_sm") # FASTER BUT LESS ACC
 
+    for obj in obj_list:
+        doc = nlp(obj)
+        for token in doc:
+            if token.pos_ == "VERB":
+                print(token.tag_, token.text)
 
-#print(scan_obj_dict)    with open(basepath + 'set_objs_certain_218.pkl', 'rb') as f:
-        objs_certain = pickle.load(f)
+    
+#evaluate()
+
+

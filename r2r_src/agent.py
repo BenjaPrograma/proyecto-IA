@@ -187,6 +187,22 @@ class Seq2SeqAgent(BaseAgent):
                mask.byte().cuda(),  \
                list(seq_lengths), list(perm_idx)
 
+    def _sort_batch_fake_objs(self, obs):
+        seq_tensor = np.array([ob['fake_instr_encoding'] for ob in obs])
+        seq_lengths = np.argmax(seq_tensor == padding_idx, axis=1)
+        seq_lengths[seq_lengths == 0] = seq_tensor.shape[1]     # Full length
+
+        seq_tensor = torch.from_numpy(seq_tensor)
+        seq_lengths = torch.from_numpy(seq_lengths)
+
+        # Sort sequences by lengths
+        seq_lengths, perm_idx = seq_lengths.sort(0, True)       # True -> descending
+        sorted_tensor = seq_tensor[perm_idx]
+        mask = (sorted_tensor == padding_idx)[:,:seq_lengths[0]]    # seq_lengths[0] is the Maximum length
+
+        return Variable(sorted_tensor, requires_grad=False).long().cuda(), \
+               mask.byte().cuda(),  \
+               list(seq_lengths), list(perm_idx)
     def _feature_variable(self, obs):
         ''' Extract precomputed features into variable. '''
         if args.sparseObj:
@@ -346,12 +362,18 @@ class Seq2SeqAgent(BaseAgent):
             obs = np.array(self.env.reset(batch))
 
         # Reorder the language input for the encoder (do not ruin the original code)
-        seq, seq_mask, seq_lengths, perm_idx = self._sort_batch(obs) # YA USA LA INSTR ENCODING
-        ## AHI MISMO PUEDO USAR UN SEQ_FAKE
-        ## Y DPS PASARSELO AL SELF.ENCODER.REQUIRES_GRAD(FALSE)
+        seq, seq_mask, seq_lengths, perm_idx = self._sort_batch(obs) 
+        
+        seq_fake, _, seq_lengths_fake, _ = self._sort_batch_fake_objs(obs)
+        print("SEQ INFO", seq_fake, seq_lengths_fake)
         perm_obs = obs[perm_idx]
 
         ctx, h_t, c_t = self.encoder(seq, seq_lengths) # SERA ESTE EL ENCODING FINAL?
+
+        ctx_fake, h_fake, c_fake = self.encoder(seq_fake, seq_lengths_fake)
+        print("ctx_info",ctx_fake)
+        print("extra_info", h_fake)
+        print("extra_info",c_fake)
         ctx_mask = seq_mask
 
         # Init the reward shaping

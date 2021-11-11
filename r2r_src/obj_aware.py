@@ -1,6 +1,7 @@
 import pickle
 #import numpy as np
 import random
+import string
 
 def _repickling4():
     basepath = "tasks/R2R/data/useful/"
@@ -27,12 +28,7 @@ def load_scan_objs_data():
         scanid_to_objs = pickle.load(f)
     return objs_certain, scanid_to_objs
 
-#objs_certain, scanid_to_objs = load_scan_objs_data()
-#for k,v in scanid_to_objs.items():
-#    print(len(v[0]),len(v[1]))
-    #print(v[0])
-    #print(v[1])
-    #break
+
 
 def swap_objs_using_scanid(objs_certain, scanid_to_objs, scanid, instr, alpha=1):
     obj_container = scanid_to_objs[scanid]
@@ -46,7 +42,9 @@ def swap_objs_using_scanid(objs_certain, scanid_to_objs, scanid, instr, alpha=1)
 
     #print(len(instr_objs), len(scan_objs))
     #print("LEN CERTAIN =", len(objs_certain))
-    instr = instr.lower().strip().split(" ")
+    instr = instr.lower()
+    instr = instr.translate(str.maketrans('','',string.punctuation))
+    instr = instr.strip().split(' ')
     i = 0
     while i < len(instr):
         word = instr[i]

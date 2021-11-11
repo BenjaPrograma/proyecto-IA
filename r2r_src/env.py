@@ -173,7 +173,7 @@ class R2RBatch():
                     new_item = dict(item)
                     new_item['instr_id'] = '%s_%d' % (item['path_id'], j)
                     new_item['instructions'] = instr
-                    print("vanilla instr type =", instr)
+                    #print("vanilla instr type =", instr)
                     copy_instr = copy.copy(instr)
                     if item["scan"] in scanid_to_objs:
                         fake_instr = swap_objs_using_scanid(objs_certain, scanid_to_objs, item['scan'], copy_instr, alpha=1)
