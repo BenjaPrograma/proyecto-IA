@@ -487,6 +487,8 @@ class R2RBatch():
             obs.append(obs_dict)
             if 'instr_encoding' in item:
                 obs[-1]['instr_encoding'] = item['instr_encoding']
+            if 'fake_instr_encoding' in item:
+                obs[-1]['fake_instr_encoding'] = item['fake_instr_encoding']
             # A2C reward. The negative distance between the state and the final state
             obs[-1]['distance'] = self.distances[state.scanId][state.location.viewpointId][item['path'][-1]]
         return obs
