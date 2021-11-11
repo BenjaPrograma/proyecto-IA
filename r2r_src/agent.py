@@ -1168,7 +1168,7 @@ class Seq2SeqAgent(BaseAgent):
 
     def optim_step(self):
         self.loss.backward()
-        print("TOTAL LOSS =",self.loss )
+        #print("TOTAL LOSS =",self.loss )
         torch.nn.utils.clip_grad_norm(self.encoder.parameters(), 40.)
         torch.nn.utils.clip_grad_norm(self.decoder.parameters(), 40.)
         
