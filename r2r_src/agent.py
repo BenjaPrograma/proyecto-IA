@@ -372,12 +372,9 @@ class Seq2SeqAgent(BaseAgent):
 
         with torch.no_grad():
             # NO QUEREMOS GRAD
-            ctx_fake, h_fake, c_fake = self.encoder(seq_fake, seq_lengths_fake)
-        print("ctx_info",ctx_fake)
-        print("extra_info", h_fake)
-        print("extra_info",c_fake)
-        ctx_mask = seq_mask
+            ctx_fake, _, _ = self.encoder(seq_fake, seq_lengths_fake)
 
+        ctx_mask = seq_mask
         # Init the reward shaping
         last_dist = np.zeros(batch_size, np.float32)
         for i, ob in enumerate(perm_obs):   # The init distance from the view point to the target
@@ -719,6 +716,7 @@ class Seq2SeqAgent(BaseAgent):
             
             # aux #3: inst matching
             ## args.matWeight es el peso (es el menor de todos)
+            a = False
             if abs(args.matWeight - 0) > eps and not (args.no_train_rl and train_rl):
 
                 ## QUEREMOS USAR LO QUE VIO (VISUAL FEATURES + ATTENTION)
@@ -730,65 +728,91 @@ class Seq2SeqAgent(BaseAgent):
                 ## TOMA EL CTX, PODEMOS CREAR UN CTX FAKE CON self.encoding, requires_grad=false
                 ## SI ESQ PODEMOS CREAR EN EL .json un fake_instruction
                 # TODO
-
-
+                if a:
+                    batch_size = h1.shape[0]
+                    mix_ctx = []
+                    label = []
+                    print("DIM", args.rnn_dim)
+                    print("SHAPE H1",h1.shape)
+                    print("SHAPE H1 sl",h1.shape)
+                    print("SHAPE CTX",ctx.shape)
+                    print("SHAPE FAKE CTX",ctx_fake.shape)
+                    print("SHAPE CTX SLI",ctx.shape[:,0,:].detach())
+                    #for _ in range(batch_size):
+                    #    if random.random() > 0.5:
+                    #        mix_ctx.append()
+                    #        label.append(0)
+                    #    else:
+                    #        mix_ctx.append()
+                    #        label.append(1)
+                    #label = torch.tensor(label)
+                    #label = label.float().cuda()
+                    #
+                    #vl_pair = torch.cat(h1,mix_ctx)
+                    #prob = self.matching_network(vl_pair)
+                    #mat_loss = F.binary_cross_entropy(prob,label) *args.matWeight
+                    #self.loss += mat_loss
+#
+                    #self.logs["mat_loss"].append(mat_loss.detach())
+                else:
+                    self.logs["mat_loss"].append(0)
                 # IGUAL PODRIAMOS PROBAR PASANDOLE vl_ctx (global features)
                 # EL PROBLEMA ESQ LE ESTAMOS PASANDO EL LENGUAJE DESDE ANTES.
 
-                if args.modmat:
-                    for i in range(v_ctx.shape[1]):
-                        if i == 0:
-                            h1 = v_ctx[:, i, :]
-                        else:
-                            _h1 = v_ctx[:, i, :]
-                            valid_mask = ~decode_mask[:, i] # True: move, False: already finished BEFORE THIS ACTION
-                            h1 = h1 * (1-valid_mask.float().unsqueeze(1)) + _h1 * valid_mask.float().unsqueeze(1) # update active feature
-                    batch_size = h1.shape[0]
-                    rand_idx = torch.randperm(batch_size)
-                    order_idx = torch.arange(0, batch_size)
-                    matching_mask = torch.empty(batch_size).random_(2).bool()
-                    same_idx = rand_idx == order_idx
-                    label = (matching_mask | same_idx).float().unsqueeze(1).cuda()  # 1 same, 0 different
-                    if args.mat_detach:
-                        l_ctx = ctx[:,0,:].detach()
-                        # l_ctx = torch.cat((ctx[:,0,:], ctx[:,-1,:]), dim=1).detach()
-                    else:
-                        # l_ctx = torch.cat((ctx[:,0,:], ctx[:,-1,:]), dim=1)
-                        l_ctx = ctx[:,0,:]
-                    new_h1 = label * h1 + (1 - label) * h1[rand_idx, :]
-                    new_l_ctx = label * l_ctx + (1 - label) * l_ctx[rand_idx, :]
-                    # ALGO SIMILAR
-                    
-                    # vl_pair = torch.cat((new_h1, h1), dim=1)
-                    # vl_pair = torch.cat((new_l_ctx, l_ctx), dim=1)
-                    prob = self.matching_network(new_h1, l_ctx)
-                    prob1 = self.matching_network(new_h1, h1)
-                    prob2 = self.matching_network(new_l_ctx, l_ctx)
-                    mat_loss = F.binary_cross_entropy(prob, label) * args.matWeight
-                    mat_loss1 = F.binary_cross_entropy(prob1, label) * args.matWeight
-                    mat_loss2 = F.binary_cross_entropy(prob2, label) * args.matWeight
-                    self.loss += mat_loss + mat_loss1 + mat_loss2
-                else:
-                    h1 = v_ctx[:, -1, :]
-                    batch_size = h1.shape[0]
-                    rand_idx = torch.randperm(batch_size)
-                    order_idx = torch.arange(0, batch_size)
-                    matching_mask = torch.empty(batch_size).random_(2).bool()
-                    same_idx = rand_idx == order_idx
-                    label = (matching_mask | same_idx).float().unsqueeze(1).cuda()  # 1 same, 0 different
-                    new_h1 = label * h1 + (1 - label) * h1[rand_idx, :]
-                    # HACER ALGO SIMILAR?
-                    l_ctx = ctx[:,0,:].detach()
-                    vl_pair = torch.cat((new_h1, l_ctx), dim=1)
-                    prob = self.matching_network(vl_pair)
-                    mat_loss = F.binary_cross_entropy(prob, label) * args.matWeight
-                    if args.mat_mask:
-                        label_mask = ~decode_mask[:, -1]
-                        label_mask = label_mask & label_mask[rand_idx]
-                        mat_loss = F.binary_cross_entropy(prob, label, reduce=False) * args.matWeight
-                        mat_loss = torch.mean(mat_loss.squeeze() * label_mask.float())
-                    self.loss += mat_loss
-                self.logs['mat_loss'].append(mat_loss.detach())
+                #if args.modmat:
+                #    for i in range(v_ctx.shape[1]):
+                #        if i == 0:
+                #            h1 = v_ctx[:, i, :]
+                #        else:
+                #            _h1 = v_ctx[:, i, :]
+                #            valid_mask = ~decode_mask[:, i] # True: move, False: already finished BEFORE THIS ACTION
+                #            h1 = h1 * (1-valid_mask.float().unsqueeze(1)) + _h1 * valid_mask.float().unsqueeze(1) # update active feature
+                #    batch_size = h1.shape[0]
+                #    rand_idx = torch.randperm(batch_size)
+                #    order_idx = torch.arange(0, batch_size)
+                #    matching_mask = torch.empty(batch_size).random_(2).bool()
+                #    same_idx = rand_idx == order_idx
+                #    label = (matching_mask | same_idx).float().unsqueeze(1).cuda()  # 1 same, 0 different
+                #    if args.mat_detach:
+                #        l_ctx = ctx[:,0,:].detach()
+                #        # l_ctx = torch.cat((ctx[:,0,:], ctx[:,-1,:]), dim=1).detach()
+                #    else:
+                #        # l_ctx = torch.cat((ctx[:,0,:], ctx[:,-1,:]), dim=1)
+                #        l_ctx = ctx[:,0,:]
+                #    new_h1 = label * h1 + (1 - label) * h1[rand_idx, :]
+                #    new_l_ctx = label * l_ctx + (1 - label) * l_ctx[rand_idx, :]
+                #    # ALGO SIMILAR
+                #    
+                #    # vl_pair = torch.cat((new_h1, h1), dim=1)
+                #    # vl_pair = torch.cat((new_l_ctx, l_ctx), dim=1)
+                #    prob = self.matching_network(new_h1, l_ctx)
+                #    prob1 = self.matching_network(new_h1, h1)
+                #    prob2 = self.matching_network(new_l_ctx, l_ctx)
+                #    mat_loss = F.binary_cross_entropy(prob, label) * args.matWeight
+                #    mat_loss1 = F.binary_cross_entropy(prob1, label) * args.matWeight
+                #    mat_loss2 = F.binary_cross_entropy(prob2, label) * args.matWeight
+                #    self.loss += mat_loss + mat_loss1 + mat_loss2
+                #else:
+                #    h1 = v_ctx[:, -1, :]
+                #    batch_size = h1.shape[0]
+                #    rand_idx = torch.randperm(batch_size)
+                #    order_idx = torch.arange(0, batch_size)
+                #    matching_mask = torch.empty(batch_size).random_(2).bool()
+                #    same_idx = rand_idx == order_idx
+                #    label = (matching_mask | same_idx).float().unsqueeze(1).cuda()  # 1 same, 0 different
+                #    new_h1 = label * h1 + (1 - label) * h1[rand_idx, :]
+                #    # HACER ALGO SIMILAR?
+                #    l_ctx = ctx[:,0,:].detach()
+                #    vl_pair = torch.cat((new_h1, l_ctx), dim=1)
+                #    prob = self.matching_network(vl_pair)
+                #    mat_loss = F.binary_cross_entropy(prob, label) * args.matWeight
+                #    if args.mat_mask:
+                #        label_mask = ~decode_mask[:, -1]
+                #        label_mask = label_mask & label_mask[rand_idx]
+                #        mat_loss = F.binary_cross_entropy(prob, label, reduce=False) * args.matWeight
+                #        mat_loss = torch.mean(mat_loss.squeeze() * label_mask.float())
+                #    self.loss += mat_loss
+                #self.logs['mat_loss'].append(mat_loss.detach())
             else:
                 self.logs['mat_loss'].append(0)
             
