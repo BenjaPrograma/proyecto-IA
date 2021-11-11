@@ -766,15 +766,16 @@ class Seq2SeqAgent(BaseAgent):
                             mix_ctx.append(ctx.select(0,i))
                             label.append(1)
                     label = torch.tensor(label)
-                    label = label.float().cuda()
+                    label = label.float().unsqueeze(1).cuda()
                     print("SHAPE LABEL",label.shape)
 
                     mix_ctx = torch.stack(mix_ctx).cuda()
-                    print("SHAPE SELECT",ctx_fake.select(0,i).shape)
                     print("MIX SHAPE",mix_ctx.shape)
                     vl_pair = torch.cat((h1,mix_ctx), dim=1)
                     prob = self.matching_network(vl_pair)
                     print("PROB SHAPE", prob.shape)
+                    #prob = prob.select(0,0)
+
                     mat_loss = F.binary_cross_entropy(prob,label) *args.matWeight
                     self.loss += mat_loss
 ##
