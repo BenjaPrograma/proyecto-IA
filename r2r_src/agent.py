@@ -382,7 +382,10 @@ class Seq2SeqAgent(BaseAgent):
 
         with torch.no_grad():
             # NO QUEREMOS GRAD
-            ctx_fake, _, _ = self.encoder(seq_fake, seq_lengths_fake)
+            if seq_fake == None:
+                ctx_fake = None
+            else:
+                ctx_fake, _, _ = self.encoder(seq_fake, seq_lengths_fake)
 
         ctx_mask = seq_mask
         # Init the reward shaping
