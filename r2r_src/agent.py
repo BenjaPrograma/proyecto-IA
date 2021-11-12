@@ -6,6 +6,8 @@ import numpy as np
 import random
 import math
 import time
+from nlp_spacy_nltk import load_nltk_data
+from r2r_src.nlp_spacy_nltk import gen_fake_nltk
 
 import torch
 import torch.nn as nn
@@ -93,6 +95,7 @@ class Seq2SeqAgent(BaseAgent):
         self.tok = tok
         self.episode_len = episode_len
         self.feature_size = self.env.feature_size
+        self.nltk_all_objs_list, self.nltk_scan_to_objs = load_nltk_data()
 
         # Models
         enc_hidden_size = args.rnn_dim//2 if args.bidir else args.rnn_dim
@@ -174,31 +177,29 @@ class Seq2SeqAgent(BaseAgent):
                list(seq_lengths), list(perm_idx)
 
     def _sort_batch_fake_objs(self, obs):
-        skip = False
+
         for ob in obs:
-            if "fake_instr_encoding" not in ob:
-                skip = True
-                break
-            else:
-                break
-        if not skip:
-            seq_tensor = np.array([ob['fake_instr_encoding'] for ob in obs])
-            seq_lengths = np.argmax(seq_tensor == padding_idx, axis=1)
-            seq_lengths[seq_lengths == 0] = seq_tensor.shape[1]     # Full length
+            instr = ob["instr"]
+            instr = instr.split(' ')
+            scan = ob["scan"]
+            fake_instr = gen_fake_nltk(self.nltk_all_objs_list, self.nltk_scan_to_objs, instr, scan)
+            ob["fake_instr_encoding"] = fake_instr
+        seq_tensor = np.array([ob['fake_instr_encoding'] for ob in obs])
+        seq_lengths = np.argmax(seq_tensor == padding_idx, axis=1)
+        seq_lengths[seq_lengths == 0] = seq_tensor.shape[1]     # Full length
 
-            seq_tensor = torch.from_numpy(seq_tensor)
-            seq_lengths = torch.from_numpy(seq_lengths)
+        seq_tensor = torch.from_numpy(seq_tensor)
+        seq_lengths = torch.from_numpy(seq_lengths)
 
-            # Sort sequences by lengths
-            seq_lengths, perm_idx = seq_lengths.sort(0, True)       # True -> descending
-            sorted_tensor = seq_tensor[perm_idx]
-            mask = (sorted_tensor == padding_idx)[:,:seq_lengths[0]]    # seq_lengths[0] is the Maximum length
+        # Sort sequences by lengths
+        seq_lengths, perm_idx = seq_lengths.sort(0, True)       # True -> descending
+        sorted_tensor = seq_tensor[perm_idx]
+        mask = (sorted_tensor == padding_idx)[:,:seq_lengths[0]]    # seq_lengths[0] is the Maximum length
 
-            return Variable(sorted_tensor, requires_grad=False).long().cuda(), \
-                mask.byte().cuda(),  \
-                list(seq_lengths), list(perm_idx)
-        else:
-            return None, None, None, None
+        return Variable(sorted_tensor, requires_grad=False).long().cuda(), \
+            mask.byte().cuda(),  \
+            list(seq_lengths), list(perm_idx)
+
     def _feature_variable(self, obs):
         ''' Extract precomputed features into variable. '''
         if args.sparseObj:

@@ -2,7 +2,8 @@
 
 import sys
 
-from obj_aware import load_scan_objs_data, swap_objs_using_scanid
+
+from nlp_spacy_nltk import string_cleaner_nlp
 sys.path.append('buildpy36')
 import MatterSim
 import csv
@@ -15,7 +16,7 @@ import os
 import random
 import networkx as nx
 from param import args
-import copy
+#import copy
 
 
 from utils import load_datasets, load_nav_graphs, Tokenizer
@@ -162,7 +163,7 @@ class R2RBatch():
         if tokenizer:
             self.tok = tokenizer
         scans = []
-        objs_certain, scanid_to_objs = load_scan_objs_data()# ADDED
+        #objs_certain, scanid_to_objs = load_scan_objs_data()# ADDED
 
         for split in splits:
             for item in load_datasets([split]):
@@ -172,17 +173,18 @@ class R2RBatch():
                         continue
                     new_item = dict(item)
                     new_item['instr_id'] = '%s_%d' % (item['path_id'], j)
+                    instr = string_cleaner_nlp(instr)
                     new_item['instructions'] = instr
                     #print("vanilla instr type =", instr)
-                    copy_instr = copy.copy(instr)
-                    if item["scan"] in scanid_to_objs:
-                        fake_instr = swap_objs_using_scanid(objs_certain, scanid_to_objs, item['scan'], copy_instr, alpha=1)
+                    #copy_instr = copy.copy(instr)
+                    #if item["scan"] in scanid_to_objs:
+                    #    fake_instr = swap_objs_using_scanid(objs_certain, scanid_to_objs, item['scan'], copy_instr, alpha=1)
                         #print("fake instr type =",fake_instr)
 
                     if tokenizer:
                         new_item['instr_encoding'] = tokenizer.encode_sentence(instr)
-                        if item["scan"] in scanid_to_objs:
-                            new_item['fake_instr_encoding'] = tokenizer.encode_sentence(fake_instr)
+                        #if item["scan"] in scanid_to_objs:
+                        #    new_item['fake_instr_encoding'] = tokenizer.encode_sentence(fake_instr)
                     if not tokenizer or new_item['instr_encoding'] is not None:  # Filter the wrong data
                         self.data.append(new_item)
                         scans.append(item['scan'])
@@ -487,8 +489,8 @@ class R2RBatch():
             obs.append(obs_dict)
             if 'instr_encoding' in item:
                 obs[-1]['instr_encoding'] = item['instr_encoding']
-            if 'fake_instr_encoding' in item:
-                obs[-1]['fake_instr_encoding'] = item['fake_instr_encoding']
+            #if 'fake_instr_encoding' in item:
+            #    obs[-1]['fake_instr_encoding'] = item['fake_instr_encoding']
             # A2C reward. The negative distance between the state and the final state
             obs[-1]['distance'] = self.distances[state.scanId][state.location.viewpointId][item['path'][-1]]
         return obs
