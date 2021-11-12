@@ -45,6 +45,7 @@ export MATTERPORT_DATA_DIR=
 - Que se haga el fake instruction dentro del rollout (asi sirve para el resto de was?)
 - Detector de objetos con NLTK, viendo si no es verbo, esta en lista de obj y cosas asi. Para que no detecte "walk" y los cambie
 - Probar analizando las oraciones
+- HACER BASELINE PARA MG-AUXRN CON FIXED OPTIM STEP PARA LAS AUG TASK ( PARA ESO TENDRIA QUE ENTRENAR EL SPEAKER TB POR 12k?)
 - Probar con redes de atencion? u otros embeddings
 - LEER LXMERT
 - PODRIA HACER QUE ESTA RED PASE DE NUEVO POR EL DECODER UNIVERSAL Y VER QUE VOMITA Y PROPAGAR ERROR PARA ATRAS.
@@ -66,7 +67,9 @@ work that neglects the above two situations could introduce noise
 into the auxiliary task. Therefore, we propose an O(n) algorithm
 to generate data and mask out the noise, as shown in Algo. 1.
 
--Entrenar con el Shortest path la tarea aux y ver la loss
+-Entrenar con el Shortest path la tarea aux y ver la loss ?
+
+
 ## COSAS WORK
 
 - COMO OBTENER OBJETOS DE UN PATH_ID?
