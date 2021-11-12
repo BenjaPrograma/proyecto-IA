@@ -764,7 +764,7 @@ class Seq2SeqAgent(BaseAgent):
                     mix_ctx = torch.stack(mix_ctx).cuda()
                     #print("MIX SHAPE",mix_ctx.shape)
                     vl_pair = torch.cat((h1,mix_ctx), dim=1)
-                    prob = self.matching_network(vl_pair)
+                    prob = self.matching_instruction(vl_pair)
                     #print("PROB SHAPE", prob.shape)
                     #prob = prob.select(0,0)
 
