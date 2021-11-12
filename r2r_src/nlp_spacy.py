@@ -81,6 +81,8 @@ def testing_obj_swapper(alpha=1):
     basepath = "tasks/R2R/data/"
     split = "R2R_train.json"
 
+    real_instr = []
+    spacy_fake = []
     with open(basepath + split, "r") as f:
             new_data = json.load(f)
 
@@ -128,7 +130,13 @@ def testing_obj_swapper(alpha=1):
             instr = " ".join(instr)
             print("real instr =",instr_real)
             print("fake instr =", instr)
-        
+            spacy_fake.append(instr)
+            real_instr.append(instr_real)
+    
+    with open(basepath + "instr_evaluator.txt", "w") as f:
+        for real, fake in zip(real_instr,spacy_fake):
+            f.write(real +"\n")
+            f.write(fake +"\n")
         
 
 
