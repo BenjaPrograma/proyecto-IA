@@ -178,7 +178,7 @@ class Seq2SeqAgent(BaseAgent):
     def _sort_batch_fake_objs(self, obs):
 
         for ob in obs:
-            instr = ob["instr"]
+            instr = ob["instructions"]
             instr = instr.split(' ')
             scan = ob["scan"]
             fake_instr = gen_fake_nltk(self.nltk_all_objs_list, self.nltk_scan_to_objs, instr, scan)
