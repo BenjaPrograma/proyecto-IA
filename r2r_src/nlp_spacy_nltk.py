@@ -266,11 +266,24 @@ def gen_fake_nltk(all_objs_list, scan_to_objs, instr, scan_id, alpha=0.5):
                 i +=1
             alpha +=alpha/2
 
-
-
     instr = " ".join(instr)
     return instr
 
+def nltk_remove_obj(instr):
+    word_to_type = dict()
+    i = 0
+    for i in range(len(instr)):
+        word = instr[i]
+        wordtype = set()
+        if len(word) > 2:
+            for tmp in wordnet.synsets(word):
+                if tmp.name().split('.')[0] == word:
+                    wordtype.add(tmp.pos())
+        word_to_type[word] = wordtype
+        if len(wordtype) == 1 and "n" in wordtype:
+            instr[i] = "<UNK>"
+    instr = " ".join(instr)
+    return instr
 
 def __gen_fake_nltk(instr, scan_objs, instr_objs, list_objs_certain, alpha):
     #instr = instr.strip().split(' ')

@@ -40,14 +40,23 @@ se llama al SEQ2SEQ.train()
 nvidia-docker run -it --mount type=bind,source="/mnt/d/BACKUP 05-10-2021 FORMAT/Lifestein/UC/UC 2021-2/Topicos de IA/Proyecto/proyecto-IA/data/matterport_unzip",target=/root/mount/proyecto-IA/data/matterport_unzip --volume `pwd`:/root/mount/proyecto-IA mattersim:9.2-devel-ubuntu18.04
 
 export MATTERPORT_DATA_DIR=
+## DONE TODO
+
+- Que se haga el fake instruction dentro del rollout (asi sirve para el resto de was?) DONE
+
+- Detector de objetos con NLTK, viendo si no es verbo, esta en lista de obj y cosas asi. Para que no detecte "walk" y los cambie. DONE
+
+- Probar analizando las oraciones. DONE
 
 ## TODO
-- Que se haga el fake instruction dentro del rollout (asi sirve para el resto de was?)
-- Detector de objetos con NLTK, viendo si no es verbo, esta en lista de obj y cosas asi. Para que no detecte "walk" y los cambie
-- Probar analizando las oraciones
+
+- Probar cambiando DIRECCIONES, onda LEFT por RIGHT y que identifique la correcta, no solo cambiar objetos.
+
 - HACER BASELINE PARA MG-AUXRN CON FIXED OPTIM STEP PARA LAS AUG TASK ( PARA ESO TENDRIA QUE ENTRENAR EL SPEAKER TB POR 12k?)
-- Probar con redes de atencion? u otros embeddings
+
 - LEER LXMERT
+- Ver lo de augmentación opuesta, paper que leimos en clase
+
 - PODRIA HACER QUE ESTA RED PASE DE NUEVO POR EL DECODER UNIVERSAL Y VER QUE VOMITA Y PROPAGAR ERROR PARA ATRAS.
 - O de alguna forma usar un componente de atencion, que influya para atras y ayude.
 

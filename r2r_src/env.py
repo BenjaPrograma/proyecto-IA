@@ -4,6 +4,7 @@ import sys
 
 
 from nlp_spacy_nltk import string_cleaner_nlp
+from nlp_spacy_nltk import nltk_remove_obj
 sys.path.append('buildpy36')
 import MatterSim
 import csv
@@ -174,6 +175,8 @@ class R2RBatch():
                     new_item = dict(item)
                     new_item['instr_id'] = '%s_%d' % (item['path_id'], j)
                     instr = string_cleaner_nlp(instr)
+                    if args.no_object:
+                        instr = nltk_remove_obj(instr.split(" "))
                     new_item['instructions'] = instr
                     #print("vanilla instr type =", instr)
                     #copy_instr = copy.copy(instr)
@@ -183,6 +186,7 @@ class R2RBatch():
 
                     if tokenizer:
                         new_item['instr_encoding'] = tokenizer.encode_sentence(instr)
+                        print(instr, new_item['instr_encoding'])
                         #if item["scan"] in scanid_to_objs:
                         #    new_item['fake_instr_encoding'] = tokenizer.encode_sentence(fake_instr)
                     if not tokenizer or new_item['instr_encoding'] is not None:  # Filter the wrong data
