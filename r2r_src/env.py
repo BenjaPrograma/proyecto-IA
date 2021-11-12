@@ -165,7 +165,7 @@ class R2RBatch():
             self.tok = tokenizer
         scans = []
         #objs_certain, scanid_to_objs = load_scan_objs_data()# ADDED
-
+#
         for split in splits:
             for item in load_datasets([split]):
                 # Split multiple instructions into separate entries
