@@ -770,7 +770,11 @@ class Seq2SeqAgent(BaseAgent):
 
                     matins_loss = F.binary_cross_entropy(prob,label) *args.matinsWeight
                     self.loss += matins_loss
-
+                    self.logs['matins_loss'].append(matins_loss.detach())
+                else:
+                    self.logs['matins_loss'].append(0)
+            else:
+                self.logs['matins_loss'].append(0)
             # aux #3: inst matching
             ## args.matWeight es el peso (es el menor de todos)
 
