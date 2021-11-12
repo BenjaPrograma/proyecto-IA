@@ -182,7 +182,7 @@ class Seq2SeqAgent(BaseAgent):
             instr = instr.split(' ')
             scan = ob["scan"]
             fake_instr = gen_fake_nltk(self.nltk_all_objs_list, self.nltk_scan_to_objs, instr, scan)
-            ob["fake_instr_encoding"] = fake_instr
+            ob["fake_instr_encoding"] = self.tok.encode_sentence(fake_instr)
         seq_tensor = np.array([ob['fake_instr_encoding'] for ob in obs])
         seq_lengths = np.argmax(seq_tensor == padding_idx, axis=1)
         seq_lengths[seq_lengths == 0] = seq_tensor.shape[1]     # Full length
