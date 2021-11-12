@@ -139,7 +139,8 @@ class Tokenizer(object):
         assert self.vocab_size() == old+1
         print("OLD_VOCAB_SIZE", old)
         print("VOCAB_SIZE", self.vocab_size())
-        print("VOACB", len(vocab))
+        if vocab:
+            print("VOCAB", len(vocab))
 
     def finalize(self):
         """
