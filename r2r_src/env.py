@@ -186,7 +186,7 @@ class R2RBatch():
 
                     if tokenizer:
                         new_item['instr_encoding'] = tokenizer.encode_sentence(instr)
-                        print(instr, new_item['instr_encoding'])
+                        #print(instr, new_item['instr_encoding'])
                         #if item["scan"] in scanid_to_objs:
                         #    new_item['fake_instr_encoding'] = tokenizer.encode_sentence(fake_instr)
                     if not tokenizer or new_item['instr_encoding'] is not None:  # Filter the wrong data
