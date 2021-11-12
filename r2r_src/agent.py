@@ -6,8 +6,7 @@ import numpy as np
 import random
 import math
 import time
-from nlp_spacy_nltk import load_nltk_data
-from r2r_src.nlp_spacy_nltk import gen_fake_nltk
+from nlp_spacy_nltk import load_nltk_data, gen_fake_nltk
 
 import torch
 import torch.nn as nn
