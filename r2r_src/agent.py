@@ -124,23 +124,28 @@ class Seq2SeqAgent(BaseAgent):
             self.matching_instruction = model.MatchCorrectInstruction().cuda()
             self.feature_predictor = model.FeaturePredictor().cuda()
             self.angle_predictor = model.AnglePredictor().cuda()
-            if args.upload:
-                speaker_model = get_sync_dir('lyx/snap/speaker/state_dict/best_val_unseen_bleu')
-            else:
-                speaker_model = os.path.join(args.R2R_Aux_path, 'snap/speaker/state_dict/best_val_unseen_bleu')
-            states = torch.load(speaker_model)
-            self.speaker_decoder.load_state_dict(states["decoder"]["state_dict"])  # DECODER LINE
-            self.aux_models = (self.speaker_decoder, self.progress_indicator, self.matching_network, self.feature_predictor, self.angle_predictor)
 
-            self.aux_optimizer = args.optimizer(
-                list(self.progress_indicator.parameters())
-                + list(self.speaker_decoder.parameters())
+            if args.speWeight > 0:
+                if args.upload:
+                    speaker_model = get_sync_dir('lyx/snap/speaker/state_dict/best_val_unseen_bleu')
+                else:
+                    speaker_model = os.path.join(args.R2R_Aux_path, 'snap/speaker/state_dict/best_val_unseen_bleu')
+                states = torch.load(speaker_model)
+                self.speaker_decoder.load_state_dict(states["decoder"]["state_dict"])  # DECODER LINE
+            
+            if args.speWeight > 0:
+                self.aux_models = (self.speaker_decoder, self.progress_indicator, self.matching_instruction, self.matching_network, self.feature_predictor, self.angle_predictor)
+            
+                self.aux_optimizer = args.optimizer(
+                list(self.speaker_decoder.parameters())
+                + list(self.progress_indicator.parameters())
                 + list(self.matching_instruction.parameters())
                 + list(self.matching_network.parameters())
                 + list(self.feature_predictor.parameters())
                 + list(self.angle_predictor.parameters())
                 , lr=args.matins_lr)
-            self.all_tuple = [
+
+                self.all_tuple = [
                 ("encoder", self.encoder, self.encoder_optimizer),
                 ("decoder", self.decoder, self.decoder_optimizer),
                 ("critic", self.critic, self.critic_optimizer),
@@ -151,6 +156,27 @@ class Seq2SeqAgent(BaseAgent):
                 ("feature_predictor", self.feature_predictor, self.aux_optimizer),
                 ("angle_predictor", self.angle_predictor, self.aux_optimizer)
             ]
+            else:
+                self.aux_models = (self.progress_indicator, self.matching_instruction, self.matching_network, self.feature_predictor, self.angle_predictor)
+                
+                self.aux_optimizer = args.optimizer(
+                list(self.progress_indicator.parameters())
+                + list(self.matching_instruction.parameters())
+                + list(self.matching_network.parameters())
+                + list(self.feature_predictor.parameters())
+                + list(self.angle_predictor.parameters())
+                , lr=args.matins_lr)
+
+                self.all_tuple = [
+                ("encoder", self.encoder, self.encoder_optimizer),
+                ("decoder", self.decoder, self.decoder_optimizer),
+                ("critic", self.critic, self.critic_optimizer),
+                ("matching_instruction", self.matching_instruction, self.aux_optimizer),
+                ("progress_indicator", self.progress_indicator, self.aux_optimizer),
+                ("matching_network", self.matching_network, self.aux_optimizer),
+                ("feature_predictor", self.feature_predictor, self.aux_optimizer),
+                ("angle_predictor", self.angle_predictor, self.aux_optimizer)]
+
         else:
             self.all_tuple = [
                 ("encoder", self.encoder, self.encoder_optimizer),
@@ -1266,8 +1292,6 @@ class Seq2SeqAgent(BaseAgent):
             if args.loadOptim:
                 optimizer.load_state_dict(states[name]['optimizer'])
         for param in self.all_tuple:
-            if param == "speaker_decoder" and args.speWeight > 0:
-                continue
             recover_state(*param)
         return states['encoder']['epoch'] - 1
 
