@@ -1266,6 +1266,8 @@ class Seq2SeqAgent(BaseAgent):
             if args.loadOptim:
                 optimizer.load_state_dict(states[name]['optimizer'])
         for param in self.all_tuple:
+            if param == "speaker_decoder" and args.speWeight > 0:
+                continue
             recover_state(*param)
         return states['encoder']['epoch'] - 1
 
