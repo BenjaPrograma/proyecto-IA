@@ -111,17 +111,30 @@ class Seq2SeqAgent(BaseAgent):
         self.optimizers = (self.encoder_optimizer, self.decoder_optimizer, self.critic_optimizer)
 
         if args.aux_option:
-
+            if args.modspe:
+                self.speaker_decoder = model.SpeakerDecoder_SameLSTM(self.tok.vocab_size(), args.wemb,
+                                                             self.tok.word_to_index['<PAD>'], args.rnn_dim,
+                                                             args.dropout).cuda()
+            else:
+                self.speaker_decoder = model.SpeakerDecoder(self.tok.vocab_size(), args.wemb, self.tok.word_to_index['<PAD>'],
+                                                            args.rnn_dim, args.dropout).cuda()
+            
             self.progress_indicator = model.ProgressIndicator().cuda()
             self.matching_network = model.MatchingNetwork().cuda()
             self.matching_instruction = model.MatchCorrectInstruction().cuda()
             self.feature_predictor = model.FeaturePredictor().cuda()
             self.angle_predictor = model.AnglePredictor().cuda()
-
-            self.aux_models = (self.progress_indicator, self.matching_network, self.feature_predictor, self.angle_predictor)
+            if args.upload:
+                speaker_model = get_sync_dir('lyx/snap/speaker/state_dict/best_val_unseen_bleu')
+            else:
+                speaker_model = os.path.join(args.R2R_Aux_path, 'snap/speaker/state_dict/best_val_unseen_bleu')
+            states = torch.load(speaker_model)
+            self.speaker_decoder.load_state_dict(states["decoder"]["state_dict"])  # DECODER LINE
+            self.aux_models = (self.speaker_decoder, self.progress_indicator, self.matching_network, self.feature_predictor, self.angle_predictor)
 
             self.aux_optimizer = args.optimizer(
                 list(self.progress_indicator.parameters())
+                + list(self.speaker_decoder.parameters())
                 + list(self.matching_instruction.parameters())
                 + list(self.matching_network.parameters())
                 + list(self.feature_predictor.parameters())
@@ -131,6 +144,7 @@ class Seq2SeqAgent(BaseAgent):
                 ("encoder", self.encoder, self.encoder_optimizer),
                 ("decoder", self.decoder, self.decoder_optimizer),
                 ("critic", self.critic, self.critic_optimizer),
+                ("speaker_decoder", self.speaker_decoder, self.aux_optimizer),
                 ("matching_instruction", self.matching_instruction, self.aux_optimizer),
                 ("progress_indicator", self.progress_indicator, self.aux_optimizer),
                 ("matching_network", self.matching_network, self.aux_optimizer),
@@ -178,6 +192,7 @@ class Seq2SeqAgent(BaseAgent):
     def _sort_batch_fake_objs(self, obs):
 
         for ob in obs:
+            # FAKE INSTRUCTION GENERATION
             instr = ob["instructions"]
             instr = instr.split(' ')
             scan = ob["scan"]

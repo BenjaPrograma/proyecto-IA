@@ -10,6 +10,22 @@ import copy
 #nltk.download('wordnet')
 from nltk.corpus import wordnet
 import re
+from nltk.stem import WordNetLemmatizer
+
+def direction_swapper(instr):
+    
+    for direction in all_directions:
+        if direction in instr:
+            times_in = instr.count(direction)
+            list_of_idx = []
+            start = 0
+            for _ in range(times_in):
+                idx = instr.index(direction,start)
+                list_of_idx.append(idx)
+                start = idx +1
+
+
+
 
 def main():
     #spacy.prefer_gpu()
@@ -57,15 +73,15 @@ def main():
             pickle.dump(scan_obj_dict, f, pickle.HIGHEST_PROTOCOL)
 
 
-def nltk_instr_objs():
+def nltk_instr_objs(save=True):
     basepath = "tasks/R2R/data/"
-
+    lemmatizer = WordNetLemmatizer()
     scan_to_obj = defaultdict(set)
     for split in ["R2R_train.json"]:
         with open(basepath + split, "r") as f:
             new_data = json.load(f)
 
-        all_objs = set()
+        all_objs = defaultdict(int)
 
         for data in new_data:
             scan_id = data["scan"]
@@ -84,8 +100,8 @@ def nltk_instr_objs():
                             if tmp.name().split('.')[0] == word:
                                 wordtype.add(tmp.pos())
                     word_to_type[word] = wordtype
-                    if len(wordtype) == 1 and "n" in wordtype:
-                        all_objs.add(word)
+                    if len(wordtype) == 1 and "n" in wordtype:# and not word.endswith("ing"):
+                        all_objs[word] +=1
                         scan_to_obj[scan_id].add(word)
 
         if "train" in split:
@@ -93,15 +109,51 @@ def nltk_instr_objs():
         else:
             ext = "val_"
 
-        with open(basepath + "nltk_all_objs_from_instruction_"+ext+ str(len(all_objs))+ ".txt", "w") as f:
-            for obj in all_objs:
-                f.write(obj +"\n")
+        #print(all_objs)
+        sorted_all_objs = dict(sorted(all_objs.items(), key=lambda item: item[1], reverse=True))
+        #print(len(sorted_all_objs))
+        sorted_all_objs = {k:v for k,v in sorted_all_objs.items() if v > 19}
+        #print(len(sorted_all_objs))
+        sorted_all_objs.pop("while")
+        sorted_all_objs.pop("destination")
+        sorted_all_objs.pop("gray")
+        sorted_all_objs.pop("threshold")
+        sorted_all_objs.pop("path")
+        sorted_all_objs.pop("area")
+        sorted_all_objs.pop("direction")
+        sorted_all_objs.pop("intersection")
+        sorted_all_objs.pop("christmas")
+        sorted_all_objs.pop("steps")
+        sorted_all_objs.pop("step")
+        for k,v in sorted_all_objs.items():
 
-        with open(basepath + 'nltk_all_objs_from_instruction_'+ext+ str(len(all_objs))+ ".pkl", 'wb') as f:
-            pickle.dump(all_objs, f, 3)
+            wo = wordnet.synsets(k)
+            total = len(wo)
+            verb_times = 0
+            for w in wo:
+                #print(w.name(), end=", ")
+                syn = w.name().split('.')
+                if syn[1] == "v":
+                    verb_times +=1
+            
+            if verb_times > int(total/2):
+                #print(k,v, verb_times, total/2)
+                pass
+            else:
+                print(k,v)#, verb_times, int(total/2), total, wo) #"lemma =",lemmatizer.lemmatize(k))
+        if save:
+            with open(basepath + "nltk_all_objs_from_instruction_"+ext+ str(len(all_objs))+ ".txt", "w") as f:
+                for obj in all_objs:
+                    f.write(obj +"\n")
 
-        with open(basepath + 'nltk_scanid_to_obj_from_instruction'+'.pkl', 'wb') as f:
-            pickle.dump(scan_to_obj, f, 3)
+            with open(basepath + 'nltk_all_objs_from_instruction_'+ext+ str(len(all_objs))+ ".pkl", 'wb') as f:
+                pickle.dump(all_objs, f, 3)
+
+            with open(basepath + 'nltk_scanid_to_obj_from_instruction'+'.pkl', 'wb') as f:
+                pickle.dump(scan_to_obj, f, 3)
+        else:
+            print("NOT SAVING")
+
 
 def string_cleaner_nlp(instr):
     instr = instr.lower()
@@ -325,3 +377,8 @@ def __gen_fake_nltk(instr, scan_objs, instr_objs, list_objs_certain, alpha):
         i +=1
     instr = " ".join(instr)
     return instr
+
+#def test_nltk_with_instr():
+#    nltk_instr_objs(save=False)
+#
+#test_nltk_with_instr()

@@ -50,6 +50,13 @@ export MATTERPORT_DATA_DIR=
 
 ## TODO
 
+- REHAUL de NLTK, usar pos_tagger para sacar solo los NOUNS, luego con wordnet podemos sacar los hypernyms.path, para llegar a un physical entity u object.
+- Ver bigramfinders
+
+- Agregar que vea el largo de palabras y si es menor a N y tiene 0 objetos entonces no cambiar nada nomas.
+- Agregar palabras al vocab.
+- Funcion is_object
+
 - Probar cambiando DIRECCIONES, onda LEFT por RIGHT y que identifique la correcta, no solo cambiar objetos.
 
 - HACER BASELINE PARA MG-AUXRN CON FIXED OPTIM STEP PARA LAS AUG TASK ( PARA ESO TENDRIA QUE ENTRENAR EL SPEAKER TB POR 12k?)
@@ -76,7 +83,6 @@ work that neglects the above two situations could introduce noise
 into the auxiliary task. Therefore, we propose an O(n) algorithm
 to generate data and mask out the noise, as shown in Algo. 1.
 
--Entrenar con el Shortest path la tarea aux y ver la loss ?
 
 
 ## COSAS WORK
