@@ -818,7 +818,7 @@ class Seq2SeqAgent(BaseAgent):
                     self.logs['matins_loss'].append(0)
             else:
                 self.logs['matins_loss'].append(0)
-                
+
             # aux #3: inst matching
             ## args.matWeight es el peso (es el menor de todos)
 
@@ -1255,6 +1255,7 @@ class Seq2SeqAgent(BaseAgent):
 
             if args.aux_option:
                 ## ESTO NO ESTABA ASI INICIALMENTE
+                ## Por lo que no habia entrenamiento de las redes AUX
                 self.optim_step()
             else:
                 self.loss.backward()
