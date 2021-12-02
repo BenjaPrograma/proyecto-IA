@@ -1,16 +1,20 @@
 import json
 import string
-#import spacy
+import spacy
 import pickle
 from collections import defaultdict
 from obj_aware import load_scan_objs_data
 import random
 import copy
-#import nltk
+import nltk
 #nltk.download('wordnet')
 from nltk.corpus import wordnet
+
+
 import re
-from nltk.stem import WordNetLemmatizer
+
+import time
+
 
 def direction_swapper(instr):
     
@@ -159,7 +163,8 @@ def string_cleaner_nlp(instr):
     instr = instr.lower()
     instr = instr.translate(str.maketrans('','',string.punctuation))
     instr = re.sub(r'\r\n'," ",instr)
-    instr = instr.strip()
+    instr = re.sub("\s\s+", " ", instr)
+    instr = instr.rstrip().strip()
     return instr
 
 #nltk_instr_objs()
@@ -242,6 +247,9 @@ def load_nltk_data():
     with open(basepath + scan_objs_file, "rb") as f:
         scan_to_objs = pickle.load(f)
     return list(all_objs_set), scan_to_objs
+
+
+
 
 def gen_fake_nltk(all_objs_list, scan_to_objs, instr, scan_id, alpha=0.5):
     total_only_objs = 0
@@ -378,7 +386,106 @@ def __gen_fake_nltk(instr, scan_objs, instr_objs, list_objs_certain, alpha):
     instr = " ".join(instr)
     return instr
 
+
+def find_objs_nltk():
+    basepath = "tasks/R2R/data/"
+    split = "R2R_train.json"
+    start = time.time()
+
+    #nlp = spacy.load("en_core_web_sm")
+    #spacy.prefer_gpu()
+    spacy.require_gpu()
+
+    nlp = spacy.load("en_core_web_trf")
+    end = time.time()
+    print("TIME TO LOAD SPACY NLP =", str(end-start))
+    start = time.time()
+    with open(basepath + split, "r") as f:
+            new_data = json.load(f)
+    ruler = nlp.get_pipe("attribute_ruler")
+    patterns = [[{"TEXT":"turn"}],[{"TEXT":"left"}],[{"TEXT":"right"}], 
+    [{"TEXT":"walk"}], [{"TEXT":"front"}], [{"TEXT":"end"}],
+    [{"TEXT":"top"}],[{"TEXT":"bottom"}],[{"TEXT":"side"}],
+    [{"TEXT":"stop"}]
+    ]
+    attrs = {"POS":"VERB", "POS":"ADV", "POS":"ADV", 
+    "POS":"VERB", "POS":"ADV","POS":"ADV", 
+    "POS":"ADV", "POS":"ADV", "POS":"ADV", 
+    "POS":"VERB"
+    }
+    ruler.add(patterns=patterns, attrs=attrs) 
+    #ruler.add(patterns=patterns, attrs=attrs, index=1) 
+    i = 0
+
+    consec_list = []
+    for item in new_data:
+        scanid = item["scan"]
+        for j, instr in enumerate(item["instructions"]):
+            instr = string_cleaner_nlp(instr)
+            doc = nlp(instr)
+
+            #tagged = pos_tag(word_tokenize(instr))
+            #chunkGram = r"""Chunk: {<RB.?>*<VB.?>*<NNP>+<NN>?}"""
+            #chunked = tagstr2tree(tagged)
+            #hunked = chunkParser.parse(tagged)
+            #chunked.draw()     
+            #print(tagged)
+            all_consec = []
+            consec_nouns = []
+            prev_noun = False
+            for k,token in enumerate(doc):
+                tup = (k,token.text)
+                if token.pos_ == "NOUN" and not prev_noun:
+                    consec_nouns.append(tup)
+                    prev_noun = True
+                elif token.pos_ == "NOUN" and prev_noun:
+                    consec_nouns.append(tup)
+                elif token.pos_ != "NOUN" and prev_noun:
+                    all_consec.append(consec_nouns)
+                    consec_nouns = []
+                    prev_noun = False
+                elif token.pos_ != "NOUN" and not prev_noun:
+                    pass
+            if prev_noun == True:
+                all_consec.append(consec_nouns)
+            #print(instr)
+            #print(all_consec)
+            consec_list.append(all_consec)
+    
+
+    objects = defaultdict(int)
+    for instr_consec in consec_list:
+        for consec in instr_consec:
+            total_obj = ""
+            for tuple in consec:
+                total_obj += tuple[1] + " "
+            total_obj = total_obj[:len(total_obj)-1]
+            objects[total_obj] +=1
+    sorted_all_objs = dict(sorted(objects.items(), key=lambda item: item[1], reverse=True))
+
+    nouns_to_ignore_set = set()
+    with open(basepath + "nouns_to_ignore.txt", "r") as f:
+        for line in f:
+            line = line.strip()
+            nouns_to_ignore_set.add(line)
+    threshold = 20 # MIN OCCURRENCE TO BE IN ALL OBJS
+    sorted_all_objs = {k:v for k,v in sorted_all_objs.items() if v > threshold and k not in nouns_to_ignore_set}
+
+    basepath = "tasks/R2R/data/"
+    with open(basepath + "list_objs_spacy.txt", "w") as f:
+        for k,v in sorted_all_objs.items():
+            f.write(k + " " +str(v) + "\n")
+        
+    end = time.time()
+    print("TIME ELAPSED =", str(end-start))
+
+def spacy_noun_grouper(instr):
+    pass
+
+    
 #def test_nltk_with_instr():
 #    nltk_instr_objs(save=False)
 #
 #test_nltk_with_instr()
+
+#find_objs_nltk()

@@ -134,12 +134,13 @@ class Seq2SeqAgent(BaseAgent):
                 self.speaker_decoder.load_state_dict(states["decoder"]["state_dict"])  # DECODER LINE
             
             if args.speWeight > 0:
-                self.aux_models = (self.speaker_decoder, self.progress_indicator, self.matching_instruction, self.matching_network, self.feature_predictor, self.angle_predictor)
+               # self.aux_models = (self.speaker_decoder, self.progress_indicator, self.matching_instruction, self.matching_network, self.feature_predictor, self.angle_predictor)
+                self.aux_models = (self.speaker_decoder, self.progress_indicator, self.matching_network, self.feature_predictor, self.angle_predictor)
             
                 self.aux_optimizer = args.optimizer(
                 list(self.speaker_decoder.parameters())
                 + list(self.progress_indicator.parameters())
-                + list(self.matching_instruction.parameters())
+                #+ list(self.matching_instruction.parameters())
                 + list(self.matching_network.parameters())
                 + list(self.feature_predictor.parameters())
                 + list(self.angle_predictor.parameters())
@@ -150,12 +151,12 @@ class Seq2SeqAgent(BaseAgent):
                 ("decoder", self.decoder, self.decoder_optimizer),
                 ("critic", self.critic, self.critic_optimizer),
                 ("speaker_decoder", self.speaker_decoder, self.aux_optimizer),
-                ("matching_instruction", self.matching_instruction, self.aux_optimizer),
+                #("matching_instruction", self.matching_instruction, self.aux_optimizer),
                 ("progress_indicator", self.progress_indicator, self.aux_optimizer),
                 ("matching_network", self.matching_network, self.aux_optimizer),
                 ("feature_predictor", self.feature_predictor, self.aux_optimizer),
                 ("angle_predictor", self.angle_predictor, self.aux_optimizer)
-            ]
+                ]
             else:
                 self.aux_models = (self.progress_indicator, self.matching_instruction, self.matching_network, self.feature_predictor, self.angle_predictor)
                 
@@ -175,7 +176,8 @@ class Seq2SeqAgent(BaseAgent):
                 ("progress_indicator", self.progress_indicator, self.aux_optimizer),
                 ("matching_network", self.matching_network, self.aux_optimizer),
                 ("feature_predictor", self.feature_predictor, self.aux_optimizer),
-                ("angle_predictor", self.angle_predictor, self.aux_optimizer)]
+                ("angle_predictor", self.angle_predictor, self.aux_optimizer)
+                ]
 
         else:
             self.all_tuple = [
@@ -816,6 +818,7 @@ class Seq2SeqAgent(BaseAgent):
                     self.logs['matins_loss'].append(0)
             else:
                 self.logs['matins_loss'].append(0)
+                
             # aux #3: inst matching
             ## args.matWeight es el peso (es el menor de todos)
 
