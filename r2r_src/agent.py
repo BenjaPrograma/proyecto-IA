@@ -746,6 +746,12 @@ class Seq2SeqAgent(BaseAgent):
 
                     # TO AVOID BUG
                     if len(prob.squeeze().size()) == 1 and len(progress_label.size()) == 2:
+                        print("FIXING BUG, MAYBE BROKEN")
+                        print("size input:",prob.squeeze().unsqueeze(1))
+                        print("size target:",progress_label)
+                        print("INPUT(PROB):\n", prob.squeeze().unsqueeze(1))
+                        print("TARGET(progress_label):\n", progress_label)
+
                         pro_loss = F.binary_cross_entropy(prob.squeeze().unsqueeze(1), progress_label, reduce=False)
                     else:
                         pro_loss = F.binary_cross_entropy(prob.squeeze(), progress_label, reduce=False)
@@ -1225,6 +1231,7 @@ class Seq2SeqAgent(BaseAgent):
         #print("TOTAL LOSS =",self.loss )
         torch.nn.utils.clip_grad_norm(self.encoder.parameters(), 40.)
         torch.nn.utils.clip_grad_norm(self.decoder.parameters(), 40.)
+        
         
         self.encoder_optimizer.step()
         self.decoder_optimizer.step()
