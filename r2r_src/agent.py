@@ -887,6 +887,7 @@ class Seq2SeqAgent(BaseAgent):
             self.loss += ang_loss
             self.logs['ang_loss'].append(ang_loss.detach())
 
+            self.logs["total_loss"].append(self.loss.detach())
         return traj
 
     def _dijkstra(self):
