@@ -743,10 +743,12 @@ class Seq2SeqAgent(BaseAgent):
                     prob = self.progress_indicator(vl_ctx)
                     valid_mask = ~decode_mask
                     progress_label = utils.progress_generator(decode_mask)
-                    prob = prob.squeeze() 
-                    prob = prob.unsqueeze(1)
-                    pro_loss = F.binary_cross_entropy(prob, progress_label, reduce=False)
-                    #pro_loss = F.binary_cross_entropy(prob.squeeze(), progress_label, reduce=False)
+
+                    # TO AVOID BUG
+                    if len(prob.squeeze().size()) == 1 and len(progress_label.size()) == 2:
+                        pro_loss = F.binary_cross_entropy(prob.squeeze().unsqueeze(1), progress_label, reduce=False)
+                    else:
+                        pro_loss = F.binary_cross_entropy(prob.squeeze(), progress_label, reduce=False)
                     pro_loss = torch.mean(pro_loss * valid_mask.float()) * args.proWeight # mask out
                     self.loss += pro_loss
                     self.logs['pro_loss'].append(pro_loss.detach())
