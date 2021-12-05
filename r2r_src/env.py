@@ -177,6 +177,8 @@ class R2RBatch():
                     instr = string_cleaner_nlp(instr)
                     if args.no_object:
                         instr = nltk_remove_obj(instr.split(" "))
+                    elif args.no_text:
+                        instr = " ".join(["<UNK>" for word in instr.split(' ')])
                     new_item['instructions'] = instr
                     #print("vanilla instr type =", instr)
                     #copy_instr = copy.copy(instr)

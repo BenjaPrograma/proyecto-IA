@@ -48,7 +48,10 @@ class Param:
         self.parser.add_argument("--submit", action='store_const', default=False, const=True)
         self.parser.add_argument("--beam", action="store_const", default=False, const=True)
         self.parser.add_argument("--alpha", type=float, default=0.5)
-        
+
+        # Experiments
+        self.parser.add_argument("--no_text", action='store_const', default=False, const=True)
+        #se
         self.parser.add_argument("--no_object", action='store_const', default=False, const=True)
 
         # aux loss
