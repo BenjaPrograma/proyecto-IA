@@ -387,7 +387,7 @@ def __gen_fake_nltk(instr, scan_objs, instr_objs, list_objs_certain, alpha):
     return instr
 
 
-def find_objs_nltk():
+def find_objs_spacy():
     basepath = "tasks/R2R/data/"
     split = "R2R_train.json"
     start = time.time()
@@ -463,13 +463,8 @@ def find_objs_nltk():
             objects[total_obj] +=1
     sorted_all_objs = dict(sorted(objects.items(), key=lambda item: item[1], reverse=True))
 
-    nouns_to_ignore_set = set()
-    with open(basepath + "nouns_to_ignore.txt", "r") as f:
-        for line in f:
-            line = line.strip()
-            nouns_to_ignore_set.add(line)
-    threshold = 20 # MIN OCCURRENCE TO BE IN ALL OBJS
-    sorted_all_objs = {k:v for k,v in sorted_all_objs.items() if v > threshold and k not in nouns_to_ignore_set}
+    threshold = 0 # MIN OCCURRENCE TO BE IN ALL OBJS
+    sorted_all_objs = {k:v for k,v in sorted_all_objs.items() if v > threshold}
 
     basepath = "tasks/R2R/data/"
     with open(basepath + "list_objs_spacy.txt", "w") as f:
@@ -479,13 +474,102 @@ def find_objs_nltk():
     end = time.time()
     print("TIME ELAPSED =", str(end-start))
 
-def spacy_noun_grouper(instr):
-    pass
+def spacy_noun_grouper():
+    basepath = "tasks/R2R/data/"
+    split = "R2R_train.json"
 
-    
+    with open(basepath + split, "r") as f:
+        new_data = json.load(f)
+
+    filename = "list_objs_spacy.txt"
+    list_all_objs = {}
+    threshold = 10
+    with open(basepath + filename, "r") as f:
+        for line in f:
+            line = line.strip().split(' ')
+            cant = int(line.pop())
+            text = " ".join(line)
+            if cant >= threshold:
+                list_all_objs[text] = cant
+
+    basepath = "r2r_src/"
+    filename = "not_objs.txt"
+    list_not_objs = set()
+    with open(basepath + filename, "r") as f:
+        for line in f:
+            line = line.strip()
+            list_not_objs.add(line)
+
+    filename = "directions.txt"
+    list_directions_and_contrafactual = dict()
+    with open(basepath + filename, "r") as f:
+        for line in f:
+            line = line.strip().split(',')
+            term = line.pop(0)
+            list_directions_and_contrafactual[term] = line
+
+    PATHID_TO_OBJ_DIRECTION_IDX = {}
+    for item in new_data:
+        pathid = item["path_id"]
+        PATHID_TO_OBJ_DIRECTION_IDX[pathid] = []
+
+        for j, instr in enumerate(item["instructions"]):
+            dir_idx_list = []
+            instr = string_cleaner_nlp(instr)
+            instr_tok = instr.split(' ')
+            max_len_word = 5
+            x = 0 
+            y = max_len_word + 1
+            while x < len(instr_tok):
+                found = False
+                if y >= len(instr_tok):
+                    y = len(instr_tok)
+                while x != y:
+                    words = instr_tok[x:y]
+                    words_str = " ".join(words)
+                    if words_str in list_directions_and_contrafactual:
+                        dir_idx_list.append((x,y, words_str))
+                        x = y
+                        y = x + max_len_word + 1
+                        found = True
+                        break
+                    y -=1
+                if not found:
+                    x +=1
+                    y = x + max_len_word + 1
+
+            PATHID_TO_OBJ_DIRECTION_IDX[pathid].append(dir_idx_list)
+
+    basepath = "tasks/R2R/data/"
+    with open(basepath + 'pathid_to_direction_idx'+'.pkl', 'wb') as f:
+        pickle.dump(PATHID_TO_OBJ_DIRECTION_IDX, f, 3)
+    # EXAMPLE:
+    #"Walk down one flight of stairs and stop on the landing.",
+    #{6250: [[(1, 2, 'down')], [(1, 2, 'between'), (9, 10, 'right'), (11, 12, 'down')], [(1, 2, 'forward'), (4, 5, 'right'), (10, 11, 'down')]]}
+                
+
+def load_pathid_to_direction_idx():
+    basepath = "tasks/R2R/data/"
+    with open(basepath + "pathid_to_direction_idx.pkl", "rb") as f:
+        dict = pickle.load(f)
+    return dict
+
+
+def remove_directions(dict_path_direction, instr,i,path_id):
+    instr_tok = instr.split(' ')
+    idxs = dict_path_direction[path_id][i]
+    for tuple in idxs:
+        x,y,word = tuple
+        while x != y:
+            instr_tok[x] = "<UNK>"
+            x +=1
+    return " ".join(instr_tok)
+
+
 #def test_nltk_with_instr():
 #    nltk_instr_objs(save=False)
 #
 #test_nltk_with_instr()
 
 #find_objs_nltk()
+#find_objs_spacy()

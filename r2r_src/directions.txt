@@ -1,0 +1,42 @@
+right,left,leftmost,around
+left,right,around,rightmost
+in front,behind,past
+the end,the beginning,the start
+the top,the bottom
+the bottom,the top
+down,up
+past,until
+until,after
+straight,right,left
+up,down
+forward,left,right
+forwards,left,right
+around,left,right
+beside,opposite
+next,leftmost,rightmost
+through,until,before
+toward,opposite,before,until
+across,opposite,before,until
+ahead,right,left
+before,after,
+between,opposite,under,over
+after,before
+behind,in front
+opposite,left,right
+under,above,over
+over,under
+nearest,farthest,furthest,closest
+closest,nearest
+above,under,between
+farthest,nearest
+furthest,nearest
+leftmost,rightmost
+rightmost,leftmost
+other side,right side,left side,alongside
+alongside,other side,
+underneath,above,on top,over
+downwards,upwards
+upwards,downwards
+diagonally,straight
+descending,ascending
+ascending,descending
