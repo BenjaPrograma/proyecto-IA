@@ -555,11 +555,8 @@ def load_pathid_to_direction_idx():
     return dict
 
 
-def remove_directions(dict_path_direction, instr,i,path_id,split):
+def remove_directions(dict_path_direction, instr,i,path_id):
     instr_tok = instr.split(' ')
-    if path_id not in dict_path_direction:
-        print(split)
-        #return instr
     idxs = dict_path_direction[path_id][i]
     for tuple in idxs:
         x,y,word = tuple
