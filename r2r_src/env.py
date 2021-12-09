@@ -177,12 +177,13 @@ class R2RBatch():
                     new_item = dict(item)
                     new_item['instr_id'] = '%s_%d' % (item['path_id'], j)
                     instr = string_cleaner_nlp(instr)
-                    if args.no_object:
-                        instr = nltk_remove_obj(instr.split(" "))
-                    elif args.no_text:
-                        instr = " ".join(["<UNK>" for word in instr.split(' ')])
-                    elif args.no_directions:
-                        instr = remove_directions(pathid_to_direction_idx, instr,j,pathid,split)
+                    if split == "train":
+                        if args.no_object:
+                            instr = nltk_remove_obj(instr.split(" "))
+                        elif args.no_text:
+                            instr = " ".join(["<UNK>" for word in instr.split(' ')])
+                        elif args.no_directions:
+                            instr = remove_directions(pathid_to_direction_idx, instr,j,pathid,split)
                     new_item['instructions'] = instr
                     #print("vanilla instr type =", instr)
                     #copy_instr = copy.copy(instr)
