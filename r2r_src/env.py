@@ -167,6 +167,7 @@ class R2RBatch():
         #objs_certain, scanid_to_objs = load_scan_objs_data()# ADDED
         pathid_to_direction_idx = load_pathid_to_direction_idx()     
         for split in splits:
+            print("SPLITS",splits)
             for item in load_datasets([split]):
                 pathid = item["path_id"]
                 # Split multiple instructions into separate entries
@@ -181,7 +182,7 @@ class R2RBatch():
                     elif args.no_text:
                         instr = " ".join(["<UNK>" for word in instr.split(' ')])
                     elif args.no_directions:
-                        instr = remove_directions(pathid_to_direction_idx, instr,j,pathid)
+                        instr = remove_directions(pathid_to_direction_idx, instr,j,pathid,split)
                     new_item['instructions'] = instr
                     #print("vanilla instr type =", instr)
                     #copy_instr = copy.copy(instr)
