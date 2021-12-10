@@ -6,7 +6,6 @@ import sys
 from nlp_spacy_nltk import string_cleaner_nlp, nltk_remove_obj, load_pathid_to_direction_idx
 from nlp_spacy_nltk import remove_directions, contrafactual_directions, load_directions_and_contrafactual
 from nlp_spacy_nltk import load_pathid_to_obj_idx
-from r2r_src.nlp_spacy_nltk import remove_object
 sys.path.append('buildpy36')
 import MatterSim
 import csv
