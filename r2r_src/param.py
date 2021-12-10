@@ -54,6 +54,7 @@ class Param:
         self.parser.add_argument("--no_object", action='store_const', default=False, const=True)
         self.parser.add_argument("--no_directions", action='store_const', default=False, const=True)
         self.parser.add_argument("--contrafactual_directions", action='store_const', default=False, const=True)
+        self.parser.add_argument("--replace_object", action='store_const', default=False, const=True)
 
         # aux loss
         self.parser.add_argument("--aux_option", action='store_const', default=False, const=True)
