@@ -18,7 +18,7 @@ through,until,before
 toward,opposite,before,until
 across,opposite,before,until
 ahead,right,left
-before,after,
+before,after
 between,opposite,under,over
 after,before
 behind,in front

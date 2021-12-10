@@ -545,7 +545,7 @@ def spacy_noun_grouper():
         pickle.dump(PATHID_TO_OBJ_DIRECTION_IDX, f, 3)
     # EXAMPLE:
     #"Walk down one flight of stairs and stop on the landing.",
-    #{6250: [[(1, 2, 'down')], [(1, 2, 'between'), (9, 10, 'right'), (11, 12, 'down')], [(1, 2, 'forward'), (4, 5, 'right'), (10, 11, 'down')]]}
+    #{6250: [[(1, 3, 'down')], [(1, 2, 'between'), (9, 10, 'right'), (11, 12, 'down')], [(1, 2, 'forward'), (4, 5, 'right'), (10, 11, 'down')]]}
                 
 
 def load_pathid_to_direction_idx():
@@ -554,6 +554,24 @@ def load_pathid_to_direction_idx():
         dict = pickle.load(f)
     return dict
 
+def save_opposite_directions_dict():
+    basepath = "r2r_src/"
+    dicto = dict()
+    with open(basepath + "directions.txt", "r") as f:
+        for line in f:
+            line = line.strip().split(',')
+            dir = line.pop(0)
+            dicto[dir] = line
+    basepath = "tasks/R2R/data/"
+    with open(basepath + 'directions_and_contrafactual'+'.pkl', 'wb') as f:
+        pickle.dump(dicto, f, 3)
+
+def load_directions_and_contrafactual():
+    basepath = "tasks/R2R/data/"
+    with open(basepath + "directions_and_contrafactual.pkl", "rb") as f:
+        dict = pickle.load(f)
+    print(dict)
+    return dict
 
 def remove_directions(dict_path_direction, instr,i,path_id):
     instr_tok = instr.split(' ')
@@ -565,6 +583,21 @@ def remove_directions(dict_path_direction, instr,i,path_id):
             x +=1
     return " ".join(instr_tok)
 
+def contrafactual_directions(dict_path_direction, instr,i,path_id, directions_and_contrafactual):
+    instr_tok = instr.split(' ')
+    idxs = dict_path_direction[path_id][i]
+    idxs_to_pop = []
+    for tuple in idxs:
+        x,y,word = tuple
+        instr_tok[x] = random.choice(directions_and_contrafactual[word])
+        if x +1 == y:
+            continue
+        else:
+            for i in range(x+1,y):
+                idxs_to_pop.append(i)
+    for idx in idxs_to_pop:
+        instr_tok[x].pop(idx)
+    return " ".join(instr_tok)
 
 #def test_nltk_with_instr():
 #    nltk_instr_objs(save=False)
