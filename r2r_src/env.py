@@ -5,7 +5,7 @@ import sys
 
 from nlp_spacy_nltk import string_cleaner_nlp, load_pathid_to_direction_idx
 from nlp_spacy_nltk import remove_directions, contrafactual_directions, load_directions_and_contrafactual
-from nlp_spacy_nltk import load_pathid_to_obj_idx, remove_object, replace_object
+from nlp_spacy_nltk import load_pathid_to_obj_idx, remove_object, replace_object, load_list_of_objs
 sys.path.append('buildpy36')
 import MatterSim
 import csv
@@ -166,6 +166,7 @@ class R2RBatch():
             self.tok = tokenizer
         scans = []
         #objs_certain, scanid_to_objs = load_scan_objs_data()# ADDED
+        list_of_objs = load_list_of_objs()
         pathid_to_direction_idx = load_pathid_to_direction_idx() 
         directions_and_contrafactual = load_directions_and_contrafactual()
         pathid_to_obj_idx = load_pathid_to_obj_idx()
@@ -190,7 +191,7 @@ class R2RBatch():
                             instr = contrafactual_directions(pathid_to_direction_idx, instr,j,pathid, directions_and_contrafactual)
                         elif args.replace_object:
                             print(instr)
-                            instr = replace_object(pathid_to_obj_idx, instr,j,pathid)
+                            instr = replace_object(pathid_to_obj_idx, instr,j,pathid, list_of_objs)
                             print(instr)
                             print("#####")
                     new_item['instructions'] = instr

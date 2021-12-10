@@ -705,23 +705,43 @@ def remove_object(pathid_to_obj_idx, instr,i,path_id):
 def intersection(lst1, lst2):
     return list(set(lst1) & set(lst2))
 
-def replace_object(pathid_to_obj_idx, instr,i,path_id):
+def make_list_of_objs(threshold=10):
+    basepath = "tasks/R2R/data/"
+    filename = "list_objs_spacy.txt"
+    list_all_objs = list()
+    with open(basepath + filename, "r") as f:
+        for line in f:
+            line = line.strip().split(' ')
+            cant = int(line.pop())
+            text = " ".join(line)
+            if cant >= threshold:
+                list_all_objs.append(text)
+    with open(basepath + 'list_objs_spacy'+'.pkl', 'wb') as f:
+       pickle.dump(list_all_objs, f, 3)
+
+def load_list_of_objs():
+    basepath = "tasks/R2R/data/"
+    with open(basepath + "list_objs_spacy.pkl", "rb") as f:
+        dict = pickle.load(f)
+    return dict
+
+def replace_object(pathid_to_obj_idx, instr,i,path_id, list_of_objs):
     instr_tok = instr.split(' ')
     idxs = pathid_to_obj_idx[path_id][i]
     idxs_to_pop = []
     obj_set = set()
-    all_objs = list(pathid_to_obj_idx.keys())
+
     for tuple in idxs:
         x,y,word =tuple
         obj_set.add(word)
     for tuple in idxs:
         x,y,word = tuple
-        new_obj = random.choice(all_objs)
+        new_obj = random.choice(list_of_objs)
         print(word, new_obj)
         while new_obj == "" or new_obj == word or \
             intersection(word.split(' '), new_obj.split(' ')) != [] \
             or new_obj in obj_set:
-            new_obj = random.choice(all_objs)
+            new_obj = random.choice(list_of_objs)
         instr_tok[x] = new_obj
         if x +1 == y:
             continue
