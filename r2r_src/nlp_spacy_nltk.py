@@ -570,7 +570,6 @@ def load_directions_and_contrafactual():
     basepath = "tasks/R2R/data/"
     with open(basepath + "directions_and_contrafactual.pkl", "rb") as f:
         dict = pickle.load(f)
-    print(dict)
     return dict
 
 def remove_directions(dict_path_direction, instr,i,path_id):
@@ -596,7 +595,7 @@ def contrafactual_directions(dict_path_direction, instr,i,path_id, directions_an
             for i in range(x+1,y):
                 idxs_to_pop.append(i)
     for idx in idxs_to_pop:
-        instr_tok[x].pop(idx)
+        instr_tok.pop(idx)
     return " ".join(instr_tok)
 
 #def test_nltk_with_instr():
