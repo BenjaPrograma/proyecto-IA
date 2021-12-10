@@ -190,10 +190,10 @@ class R2RBatch():
                         elif args.contrafactual_directions:
                             instr = contrafactual_directions(pathid_to_direction_idx, instr,j,pathid, directions_and_contrafactual)
                         elif args.replace_object:
-                            print(instr)
+                            #print(instr)
                             instr = replace_object(pathid_to_obj_idx, instr,j,pathid, list_of_objs)
-                            print(instr)
-                            print("#####")
+                            #print(instr)
+                            #print("#####")
                     new_item['instructions'] = instr
                     #print("vanilla instr type =", instr)
                     #copy_instr = copy.copy(instr)
