@@ -5,6 +5,8 @@ import sys
 
 from nlp_spacy_nltk import string_cleaner_nlp, nltk_remove_obj, load_pathid_to_direction_idx
 from nlp_spacy_nltk import remove_directions, contrafactual_directions, load_directions_and_contrafactual
+from nlp_spacy_nltk import load_pathid_to_obj_idx
+from r2r_src.nlp_spacy_nltk import remove_object
 sys.path.append('buildpy36')
 import MatterSim
 import csv
@@ -166,7 +168,8 @@ class R2RBatch():
         scans = []
         #objs_certain, scanid_to_objs = load_scan_objs_data()# ADDED
         pathid_to_direction_idx = load_pathid_to_direction_idx() 
-        directions_and_contrafactual = load_directions_and_contrafactual()    
+        directions_and_contrafactual = load_directions_and_contrafactual()
+        pathid_to_obj_idx = load_pathid_to_obj_idx()
         for split in splits:
             for item in load_datasets([split]):
                 pathid = item["path_id"]
@@ -179,7 +182,7 @@ class R2RBatch():
                     instr = string_cleaner_nlp(instr)
                     if split == "train":
                         if args.no_object:
-                            instr = nltk_remove_obj(instr.split(" "))
+                            instr = remove_object(pathid_to_obj_idx, instr,j,pathid)
                         elif args.no_text:
                             instr = " ".join(["<UNK>" for word in instr.split(' ')])
                         elif args.no_directions:

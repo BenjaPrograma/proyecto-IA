@@ -600,6 +600,9 @@ def contrafactual_directions(dict_path_direction, instr,i,path_id, directions_an
         instr_tok.pop(idx)
     return " ".join(instr_tok)
 
+
+def remove_object():
+    pass
 #def test_nltk_with_instr():
 #    nltk_instr_objs(save=False)
 #
@@ -607,3 +610,114 @@ def contrafactual_directions(dict_path_direction, instr,i,path_id, directions_an
 
 #find_objs_nltk()
 #find_objs_spacy()
+
+
+def spacy_obj_instruction():
+    basepath = "tasks/R2R/data/"
+    split = "R2R_train.json"
+
+    with open(basepath + split, "r") as f:
+        new_data = json.load(f)
+
+    filename = "list_objs_spacy.txt"
+    list_all_objs = {}
+    threshold = 10
+    with open(basepath + filename, "r") as f:
+        for line in f:
+            line = line.strip().split(' ')
+            cant = int(line.pop())
+            text = " ".join(line)
+            if cant >= threshold:
+                list_all_objs[text] = cant
+
+    basepath = "r2r_src/"
+    filename = "not_objs.txt"
+    list_not_objs = set()
+    with open(basepath + filename, "r") as f:
+        for line in f:
+            line = line.strip()
+            list_not_objs.add(line)
+
+    filename = "directions.txt"
+    list_directions_and_contrafactual = dict()
+    with open(basepath + filename, "r") as f:
+        for line in f:
+            line = line.strip().split(',')
+            term = line.pop(0)
+            list_directions_and_contrafactual[term] = line
+
+    PATHID_TO_OBJ_IDX = {}
+    for item in new_data:
+        pathid = item["path_id"]
+        PATHID_TO_OBJ_IDX[pathid] = []
+
+        for j, instr in enumerate(item["instructions"]):
+            dir_idx_list = []
+            instr = string_cleaner_nlp(instr)
+            instr_tok = instr.split(' ')
+            max_len_word = 6
+            x = 0 
+            y = max_len_word + 1
+            while x < len(instr_tok):
+                found = False
+                if y >= len(instr_tok):
+                    y = len(instr_tok)
+                while x != y:
+                    words = instr_tok[x:y]
+                    words_str = " ".join(words)
+                    if words_str in list_all_objs and words_str not in list_not_objs:
+                        dir_idx_list.append((x,y, words_str))
+                        x = y
+                        y = x + max_len_word + 1
+                        found = True
+                        break
+                    y -=1
+                if not found:
+                    x +=1
+                    y = x + max_len_word + 1
+
+            PATHID_TO_OBJ_IDX[pathid].append(dir_idx_list)
+    basepath = "tasks/R2R/data/"
+    with open(basepath + 'pathid_to_obj_idx'+'.pkl', 'wb') as f:
+       pickle.dump(PATHID_TO_OBJ_IDX, f, 3)
+    # EXAMPLE:
+    #{6250: [[(5, 6, 'stairs')], [(3, 4, 'columns'), (12, 14, 'the steps')], [(7, 8, 'stairs'), (12, 13, 'stairs')]]}
+
+#spacy_obj_instruction()
+
+
+def load_pathid_to_obj_idx():
+    basepath = "tasks/R2R/data/"
+    with open(basepath + "pathid_to_obj_idx.pkl", "rb") as f:
+        dict = pickle.load(f)
+    return dict
+
+def remove_object(pathid_to_obj_idx, instr,i,path_id):
+    instr_tok = instr.split(' ')
+    idxs = pathid_to_obj_idx[path_id][i]
+    for tuple in idxs:
+        x,y,word = tuple
+        while x != y:
+            instr_tok[x] = "<UNK>"
+            x +=1
+    return " ".join(instr_tok)
+
+def replace_object(pathid_to_obj_idx, instr,i,path_id):
+    instr_tok = instr.split(' ')
+    idxs = pathid_to_obj_idx[path_id][i]
+    idxs_to_pop = []
+    for tuple in idxs:
+        x,y,word = tuple
+        instr_tok[x] = random.choice(pathid_to_obj_idx.keys())
+        if x +1 == y:
+            continue
+        else:
+            for i in range(x+1,y):
+                idxs_to_pop.append(i)
+
+    idxs_to_pop.sort(reverse=True)
+    for idx in idxs_to_pop:
+        instr_tok.pop(idx)
+    return " ".join(instr_tok)
+
+#load_pathid_to_obj_idx()
