@@ -716,7 +716,7 @@ def replace_object(pathid_to_obj_idx, instr,i,path_id):
         obj_set.add(word)
     for tuple in idxs:
         x,y,word = tuple
-        new_obj = ""
+        new_obj = random.choice(all_objs)
         print(word, new_obj)
         while new_obj == "" or new_obj == word or \
             intersection(word.split(' '), new_obj.split(' ')) != [] \
