@@ -717,6 +717,7 @@ def replace_object(pathid_to_obj_idx, instr,i,path_id):
     for tuple in idxs:
         x,y,word = tuple
         new_obj = ""
+        print(word, new_obj)
         while new_obj == "" or new_obj == word or \
             intersection(word.split(' '), new_obj.split(' ')) != [] \
             or new_obj in obj_set:
