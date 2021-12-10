@@ -5,7 +5,7 @@ import sys
 
 from nlp_spacy_nltk import string_cleaner_nlp, load_pathid_to_direction_idx
 from nlp_spacy_nltk import remove_directions, contrafactual_directions, load_directions_and_contrafactual
-from nlp_spacy_nltk import load_pathid_to_obj_idx, remove_object
+from nlp_spacy_nltk import load_pathid_to_obj_idx, remove_object, replace_object
 sys.path.append('buildpy36')
 import MatterSim
 import csv
@@ -188,6 +188,8 @@ class R2RBatch():
                             instr = remove_directions(pathid_to_direction_idx, instr,j,pathid)
                         elif args.contrafactual_directions:
                             instr = contrafactual_directions(pathid_to_direction_idx, instr,j,pathid, directions_and_contrafactual)
+                        elif args.replace_object:
+                            instr = replace_object(pathid_to_obj_idx, instr,j,pathid)
                     new_item['instructions'] = instr
                     #print("vanilla instr type =", instr)
                     #copy_instr = copy.copy(instr)

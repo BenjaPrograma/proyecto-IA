@@ -702,13 +702,25 @@ def remove_object(pathid_to_obj_idx, instr,i,path_id):
             x +=1
     return " ".join(instr_tok)
 
+def intersection(lst1, lst2):
+    return list(set(lst1) & set(lst2))
+
 def replace_object(pathid_to_obj_idx, instr,i,path_id):
     instr_tok = instr.split(' ')
     idxs = pathid_to_obj_idx[path_id][i]
     idxs_to_pop = []
+    obj_set = set()
+    for tuple in idxs:
+        x,y,word =tuple
+        obj_set.add(word)
     for tuple in idxs:
         x,y,word = tuple
-        instr_tok[x] = random.choice(pathid_to_obj_idx.keys())
+        new_obj = ""
+        while new_obj == "" or new_obj == word or \
+            intersection(word.split(' '), new_obj.split(' ')) != [] \
+            or new_obj in obj_set:
+            new_obj = random.choice(pathid_to_obj_idx.keys())
+        instr_tok[x] = new_obj
         if x +1 == y:
             continue
         else:
