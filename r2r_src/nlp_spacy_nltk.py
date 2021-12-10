@@ -594,6 +594,8 @@ def contrafactual_directions(dict_path_direction, instr,i,path_id, directions_an
         else:
             for i in range(x+1,y):
                 idxs_to_pop.append(i)
+
+    idxs_to_pop.sort(reverse=True)
     for idx in idxs_to_pop:
         instr_tok.pop(idx)
     return " ".join(instr_tok)

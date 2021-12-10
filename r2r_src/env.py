@@ -177,7 +177,6 @@ class R2RBatch():
                     new_item = dict(item)
                     new_item['instr_id'] = '%s_%d' % (item['path_id'], j)
                     instr = string_cleaner_nlp(instr)
-                    print(instr)
                     if split == "train":
                         if args.no_object:
                             instr = nltk_remove_obj(instr.split(" "))
@@ -187,8 +186,6 @@ class R2RBatch():
                             instr = remove_directions(pathid_to_direction_idx, instr,j,pathid)
                         elif args.contrafactual_directions:
                             instr = contrafactual_directions(pathid_to_direction_idx, instr,j,pathid, directions_and_contrafactual)
-                            print(instr)
-                            print("########")
                     new_item['instructions'] = instr
                     #print("vanilla instr type =", instr)
                     #copy_instr = copy.copy(instr)
