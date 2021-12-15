@@ -195,6 +195,7 @@ class R2RBatch():
                             #print(instr)
                             #print("#####")
                     new_item['instructions'] = instr
+                    new_item["instructions_idx"] = j
                     #print("vanilla instr type =", instr)
                     #copy_instr = copy.copy(instr)
                     #if item["scan"] in scanid_to_objs:
@@ -203,6 +204,7 @@ class R2RBatch():
 
                     if tokenizer:
                         new_item['instr_encoding'] = tokenizer.encode_sentence(instr)
+                       
                         #print(instr, new_item['instr_encoding'])
                         #if item["scan"] in scanid_to_objs:
                         #    new_item['fake_instr_encoding'] = tokenizer.encode_sentence(fake_instr)
@@ -406,7 +408,8 @@ class R2RBatch():
                 'navigableLocations' : state.navigableLocations,
                 'instructions' : item['instructions'],
                 'teacher' : self._shortest_path_action(state, item['path'][-1]),
-                'path_id' : item['path_id']
+                'path_id' : item['path_id'],
+                'instr_idx' : item['instructions_idx']
             }
             if args.sparseObj:
                 if args.catfeat == 'none':

@@ -223,7 +223,9 @@ class Seq2SeqAgent(BaseAgent):
             # FAKE INSTRUCTION GENERATION
             instr = ob["instructions"]
             instr = instr.split(' ')
+            instr_idx = ob["instructions_idx"]
             print("INSTR", instr)
+            print("instr idx", instr_idx)
             print("#####")
             scan = ob["scan"]
             fake_instr = gen_fake_nltk(self.nltk_all_objs_list, self.nltk_scan_to_objs, instr, scan)
