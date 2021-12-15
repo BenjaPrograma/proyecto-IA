@@ -756,7 +756,8 @@ def replace_object(pathid_to_obj_idx, instr,i,path_id, list_of_objs):
 
 
 
-def gen_fake_instruction(instr, ):
+def gen_fake_instruction(instr ):
+    pass
 
     
 
