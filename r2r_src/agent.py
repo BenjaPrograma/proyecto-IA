@@ -223,7 +223,7 @@ class Seq2SeqAgent(BaseAgent):
             # FAKE INSTRUCTION GENERATION
             instr = ob["instructions"]
             instr = instr.split(' ')
-            instr_idx = ob["instructions_idx"]
+            instr_idx = ob["instr_idx"]
             print("INSTR", instr)
             print("instr idx", instr_idx)
             print("#####")
