@@ -754,4 +754,10 @@ def replace_object(pathid_to_obj_idx, instr,i,path_id, list_of_objs):
         instr_tok.pop(idx)
     return " ".join(instr_tok)
 
+
+
+def gen_fake_instruction(instr, ):
+
+    
+
 #load_pathid_to_obj_idx()

@@ -217,12 +217,14 @@ class Seq2SeqAgent(BaseAgent):
                mask.byte().cuda(),  \
                list(seq_lengths), list(perm_idx)
 
-    def _sort_batch_fake_objs(self, obs):
-
+    def _sort_batch_fake_instruction(self, obs):
+        # GENERA FAKE OBJS
         for ob in obs:
             # FAKE INSTRUCTION GENERATION
             instr = ob["instructions"]
             instr = instr.split(' ')
+            print("INSTR", instr)
+            print("#####")
             scan = ob["scan"]
             fake_instr = gen_fake_nltk(self.nltk_all_objs_list, self.nltk_scan_to_objs, instr, scan)
             ob["fake_instr_encoding"] = self.tok.encode_sentence(fake_instr)
@@ -410,7 +412,8 @@ class Seq2SeqAgent(BaseAgent):
         ctx, h_t, c_t = self.encoder(seq, seq_lengths) # SERA ESTE EL ENCODING FINAL?
 
         if args.matinsWeight != 0 and not (args.no_train_rl and train_rl):
-            seq_fake, _, seq_lengths_fake, _ = self._sort_batch_fake_objs(obs)
+            # CREAR FAKE INSTRUCTION
+            seq_fake, _, seq_lengths_fake, _ = self._sort_batch_fake_instruction(obs)
             with torch.no_grad():
                 if seq_fake == None:
                     ctx_fake = None
