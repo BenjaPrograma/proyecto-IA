@@ -232,7 +232,7 @@ class Seq2SeqAgent(BaseAgent):
             pathid = ob["path_id"]
             scan = ob["scan"]
             fake_instr = gen_fake_instruction(self.pathid_to_direction_idx, self.pathid_to_obj_idx, self.directions_and_contrafactual, self.list_of_objs, instr, instr_idx, pathid)
-            if fake_instr == None:
+            if fake_instr == False:
                 return None, None, None, None
             
             #fake_instr = gen_fake_nltk(self.nltk_all_objs_list, self.nltk_scan_to_objs, instr, scan)
