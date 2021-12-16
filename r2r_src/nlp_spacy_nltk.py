@@ -764,7 +764,7 @@ def gen_fake_instruction(pathid_to_direction_idx, pathid_to_obj_idx, directions_
     instr_directions = pathid_to_direction_idx[pathid][j]
     idxs_to_pop = []
     obj_set = set()
-    if instr_directions == None:
+    if instr_directions == []:
         what_to_replace = [1]
     else:
         what_to_replace = [1,2,3]
