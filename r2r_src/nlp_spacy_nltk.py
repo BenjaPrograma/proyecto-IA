@@ -545,8 +545,9 @@ def spacy_noun_grouper():
         pickle.dump(PATHID_TO_OBJ_DIRECTION_IDX, f, 3)
     # EXAMPLE:
     #"Walk down one flight of stairs and stop on the landing.",
-    #{6250: [[(1, 3, 'down')], [(1, 2, 'between'), (9, 10, 'right'), (11, 12, 'down')], [(1, 2, 'forward'), (4, 5, 'right'), (10, 11, 'down')]]}
-                
+    #{6250: 
+
+    # 
 
 def load_pathid_to_direction_idx():
     basepath = "tasks/R2R/data/"
@@ -705,6 +706,7 @@ def remove_object(pathid_to_obj_idx, instr,i,path_id):
 def intersection(lst1, lst2):
     return list(set(lst1) & set(lst2))
 
+
 def make_list_of_objs(threshold=10):
     basepath = "tasks/R2R/data/"
     filename = "list_objs_spacy.txt"
@@ -725,15 +727,15 @@ def load_list_of_objs():
         dict = pickle.load(f)
     return dict
 
-def replace_object(pathid_to_obj_idx, instr,i,path_id, list_of_objs):
+def replace_object(pathid_to_obj_idx, instr,i,path_id, list_of_objs, alpha=0.5):
     instr_tok = instr.split(' ')
     idxs = pathid_to_obj_idx[path_id][i]
     idxs_to_pop = []
     obj_set = set()
-
     for tuple in idxs:
         x,y,word =tuple
         obj_set.add(word)
+    
     for tuple in idxs:
         x,y,word = tuple
         new_obj = random.choice(list_of_objs)
@@ -756,9 +758,90 @@ def replace_object(pathid_to_obj_idx, instr,i,path_id, list_of_objs):
 
 
 
-def gen_fake_instruction(instr ):
-    pass
+def gen_fake_instruction(pathid_to_direction_idx, pathid_to_obj_idx, directions_and_contrafactual, list_of_objs, instr, j, pathid):
+    instr_tok = instr.split(' ')
+    instr_objs = pathid_to_obj_idx[pathid][j]
+    instr_directions = pathid_to_direction_idx[pathid][j]
+    idxs_to_pop = []
+    obj_set = set()
 
-    
+    what_to_replace = [1,2,3]
+    what_to_replace = random.choice(what_to_replace)
+    instr_tok_backup = copy.copy(instr_tok)
+    while instr_tok_backup == instr_tok:
+        if what_to_replace == 1:
+            # SOLO SE REEMPLAZA OBJ
+
+            for tuple in instr_objs:
+                _,_,word =tuple
+                obj_set.add(word)
+
+            x,y, word = random.choice(instr_objs)
+            new_obj = random.choice(list_of_objs)
+
+                # CAMBIAR SOLO 1 OBJ
+
+            while new_obj == word or \
+                intersection(word.split(' '), new_obj.split(' ')) != [] \
+                or new_obj in obj_set:
+                    new_obj = random.choice(list_of_objs)
+            instr_tok[x] = new_obj
+            if x + 1 == y:
+                continue
+            else:
+                for i in range(x + 1,y):
+                    idxs_to_pop.append(i)
+
+        elif what_to_replace == 2:
+            x,y, word = random.choice(instr_directions)
+            instr_tok[x] = random.choice(directions_and_contrafactual[word])
+            if x +1 == y:
+                continue
+            else:
+                for i in range(x+1,y):
+                    idxs_to_pop.append(i)
+
+
+        else:
+            # SE REEMPLAZAN 2 COSAS
+            for tuple in instr_objs:
+                _,_,word =tuple
+                obj_set.add(word)
+
+            x,y, word = random.choice(instr_objs)
+            new_obj = random.choice(list_of_objs)
+
+                # CAMBIAR SOLO 1 OBJ
+
+            while new_obj == word or \
+                intersection(word.split(' '), new_obj.split(' ')) != [] \
+                or new_obj in obj_set:
+                    new_obj = random.choice(list_of_objs)
+            instr_tok[x] = new_obj
+            if x + 1 == y:
+                continue
+            else:
+                for i in range(x + 1,y):
+                    idxs_to_pop.append(i)
+            x,y, word = random.choice(instr_directions)
+            ii = 0
+            to_ignore = False
+            while x+1 in idxs_to_pop:
+                x,y, word = random.choice(instr_directions)
+                ii +=1
+                if ii > 10:
+                    to_ignore = True
+                    break
+            if not to_ignore:
+                instr_tok[x] = random.choice(directions_and_contrafactual[word])
+                if x +1 == y:
+                    continue
+                else:
+                    for i in range(x+1,y):
+                        idxs_to_pop.append(i)
+    idxs_to_pop.sort(reverse=True)
+    for idx in idxs_to_pop:
+        instr_tok.pop(idx)
+    return " ".join(instr_tok)
 
 #load_pathid_to_obj_idx()

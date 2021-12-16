@@ -6,8 +6,9 @@ import numpy as np
 import random
 import math
 import time
-from nlp_spacy_nltk import load_nltk_data, gen_fake_nltk
-
+from nlp_spacy_nltk import load_nltk_data, gen_fake_nltk, gen_fake_instruction
+from nlp_spacy_nltk import load_list_of_objs, load_pathid_to_direction_idx
+from nlp_spacy_nltk import  load_pathid_to_obj_idx, load_directions_and_contrafactual
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
@@ -96,6 +97,10 @@ class Seq2SeqAgent(BaseAgent):
         self.feature_size = self.env.feature_size
         self.nltk_all_objs_list, self.nltk_scan_to_objs = load_nltk_data()
 
+        self.list_of_objs = load_list_of_objs()
+        self.pathid_to_direction_idx = load_pathid_to_direction_idx() 
+        self.directions_and_contrafactual = load_directions_and_contrafactual()
+        self.pathid_to_obj_idx = load_pathid_to_obj_idx()
         # Models
         enc_hidden_size = args.rnn_dim//2 if args.bidir else args.rnn_dim
         self.encoder = model.EncoderLSTM(tok.vocab_size(), args.wemb, enc_hidden_size, padding_idx,
@@ -224,11 +229,10 @@ class Seq2SeqAgent(BaseAgent):
             instr = ob["instructions"]
             instr = instr.split(' ')
             instr_idx = ob["instr_idx"]
-            print("INSTR", instr)
-            print("instr idx", instr_idx)
-            print("#####")
+            pathid = ob["path_id"]
             scan = ob["scan"]
-            fake_instr = gen_fake_nltk(self.nltk_all_objs_list, self.nltk_scan_to_objs, instr, scan)
+            fake_instr = gen_fake_instruction(self.pathid_to_direction_idx, self.pathid_to_obj_idx, self.directions_and_contrafactual, self.list_of_objs, instr, instr_idx, pathid)
+            #fake_instr = gen_fake_nltk(self.nltk_all_objs_list, self.nltk_scan_to_objs, instr, scan)
             ob["fake_instr_encoding"] = self.tok.encode_sentence(fake_instr)
         seq_tensor = np.array([ob['fake_instr_encoding'] for ob in obs])
         seq_lengths = np.argmax(seq_tensor == padding_idx, axis=1)
