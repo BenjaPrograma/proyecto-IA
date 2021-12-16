@@ -795,7 +795,7 @@ def gen_fake_instruction(pathid_to_direction_idx, pathid_to_obj_idx, directions_
                     idxs_to_pop.append(i)
 
         elif what_to_replace == 2:
-            print(instr_directions)
+            #print(instr_directions)
             x,y, word = random.choice(instr_directions)
             instr_tok[x] = random.choice(directions_and_contrafactual[word])
             if x +1 == y:
