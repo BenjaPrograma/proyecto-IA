@@ -768,6 +768,12 @@ def gen_fake_instruction(pathid_to_direction_idx, pathid_to_obj_idx, directions_
         what_to_replace = [1]
     else:
         what_to_replace = [1,2,3]
+    
+    if instr_objs == []:
+        what_to_replace = [2]
+
+    if instr_objs == [] and instr_directions == []:
+        return " ".join(instr_tok)
     what_to_replace = random.choice(what_to_replace)
     instr_tok_backup = copy.copy(instr_tok)
     while instr_tok_backup == instr_tok:
