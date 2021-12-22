@@ -671,8 +671,9 @@ class Seq2SeqAgent(BaseAgent):
                             prob = self.episodic_matching_instruction(vl_pair)
                             #print("PROB SHAPE", prob.shape)
                             #prob = prob.select(0,0)
-                            print("PROB = ", prob)
+                            #print("PROB = ", prob)
                             print("PROB 2 =",torch.max(prob,1)[1])
+                            print("LABELS", label)
                             #epmat_loss += self.softmax_loss(prob,label) 
                             epmat_loss += nn.CrossEntropyLoss(torch.max(prob,1)[1],label) 
 
