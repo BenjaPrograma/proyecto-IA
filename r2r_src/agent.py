@@ -678,10 +678,10 @@ class Seq2SeqAgent(BaseAgent):
                             #print("PROB = ", prob)
                             new_prob = torch.max(prob,1)[1]
                             new_prob = torch.unsqueeze(new_prob,1)
-                            #print("PROB 2 =",new_prob.shape)
-                            #print("LABELS", label.shape)
-                            #epmat_loss += self.softmax_loss(new_prob,label) 
-                            epmat_loss += nn.CrossEntropyLoss(new_prob,label) 
+                            print("PROB 2 =",new_prob.shape)
+                            print("LABELS", label.shape)
+                            epmat_loss += self.softmax_loss(new_prob,label) 
+                            #epmat_loss += nn.CrossEntropyLoss(new_prob,label) 
 
 
 
