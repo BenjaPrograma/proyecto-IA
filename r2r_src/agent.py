@@ -449,7 +449,7 @@ class Seq2SeqAgent(BaseAgent):
             'instr_id': ob['instr_id'],
             'path': [(ob['viewpoint'], ob['heading'], ob['elevation'])]
         } for ob in perm_obs]
-        print("TRAJ",traj)
+        #print("TRAJ",traj)
         # For test result submission
         visited = [set() for _ in perm_obs]
 
@@ -590,6 +590,16 @@ class Seq2SeqAgent(BaseAgent):
             last_dist[:] = dist
 
             if args.aux_option:
+                h_t_temp = h_t.unsqueeze(0)
+                c_t_temp = c_t.unsqueeze(0)
+                insts = utils.gt_words(perm_obs)
+
+            # if args.modspe:
+            #     l = ctx.size(1)
+            #     insts = insts[:, :l]
+            
+                v_ctx_temp = torch.stack(v_ctx, dim=1)
+                vl_ctx_temp = torch.stack(vl_ctx, dim=1)
 
                 decode_mask = [torch.tensor(mask) for mask in masks]
                 decode_mask = (1 - torch.stack(decode_mask, dim=1)).bool().cuda()  # different definition about mask
@@ -621,18 +631,18 @@ class Seq2SeqAgent(BaseAgent):
 
                     if ctx_fake != None:
                         if args.all_h_all_i == True:
-                            for i in range(v_ctx.shape[1]):
+                            for i in range(v_ctx_temp.shape[1]):
                                 # CREA UN ARREGLO NUEVO DE H1
                                 if i == 0:
-                                    h1 = v_ctx[:, i, :]
+                                    h1_temp = v_ctx_temp[:, i, :]
                                 else:
-                                    _h1 = v_ctx[:, i, :]
+                                    _h1_temp = v_ctx_temp[:, i, :]
                                     valid_mask = ~decode_mask[:, i] # True: move, False: already finished BEFORE THIS ACTION
-                                    h1 = h1 * (1-valid_mask.float().unsqueeze(1)) + _h1 * valid_mask.float().unsqueeze(1) # update active feature
+                                    h1_temp = h1_temp * (1-valid_mask.float().unsqueeze(1)) + _h1_temp * valid_mask.float().unsqueeze(1) # update active feature
                                     # SI ES MOVIMIENTO, LE AGREGA A H1 LA SUMA
                                     # SI YA TERMINO LA DEJA IGUAL
                             
-                            batch_size = h1.shape[0]
+                            batch_size = h1_temp.shape[0]
                             mix_ctx = []
                             label = []
                             #print("DIM", args.rnn_dim)
@@ -657,7 +667,7 @@ class Seq2SeqAgent(BaseAgent):
 
                             mix_ctx = torch.stack(mix_ctx).cuda()
                             #print("MIX SHAPE",mix_ctx.shape)
-                            vl_pair = torch.cat((h1,mix_ctx), dim=1)
+                            vl_pair = torch.cat((h1_temp,mix_ctx), dim=1)
                             prob = self.matching_instruction(vl_pair)
                             #print("PROB SHAPE", prob.shape)
                             #prob = prob.select(0,0)
