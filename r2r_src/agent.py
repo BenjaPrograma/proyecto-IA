@@ -677,7 +677,7 @@ class Seq2SeqAgent(BaseAgent):
                             #prob = prob.select(0,0)
                             #print("PROB = ", prob)
                             new_prob = torch.max(prob,1)[1]
-                            labels = labels.squeeze()
+                            label = label.squeeze()
                             #new_prob = torch.unsqueeze(new_prob,1)
                             print("PROB 2 =",new_prob.shape)
                             print("LABELS", label.shape)
