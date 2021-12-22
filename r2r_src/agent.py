@@ -653,10 +653,10 @@ class Seq2SeqAgent(BaseAgent):
                             #print("SHAPE CTX SLI",ctx[:,0,:].detach().shape)
                             #asd = torch.cat((h1, ctx[:,0,:]), dim=1)
                             ctx_temp = ctx[:,0,:].detach()
-                            ctx_fake = ctx_fake[:,0,:].detach()
+                            ctx_fake_temp = ctx_fake[:,0,:].detach()
                             for i in range(batch_size):
                                 if random.random() > 0.5:
-                                    mix_ctx.append(ctx_fake.select(0,i))
+                                    mix_ctx.append(ctx_fake_temp.select(0,i))
                                     label.append(0)
                                 else:
                                     mix_ctx.append(ctx_temp.select(0,i))
