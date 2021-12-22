@@ -65,7 +65,7 @@ class MatchCorrectInstruction(nn.Module):
 
 class EpisodicMatchingInstruction(nn.Module):
     def __init__(self):
-        super(MatchCorrectInstruction, self).__init__()
+        super(EpisodicMatchingInstruction, self).__init__()
         hidden_size = args.rnn_dim
         self.fc1 = nn.Linear(hidden_size*2, hidden_size)
         self.relu1 = nn.LeakyReLU()
