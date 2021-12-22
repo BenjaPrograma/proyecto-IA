@@ -437,7 +437,8 @@ class Seq2SeqAgent(BaseAgent):
                     ctx_fake = None
                 else:
                     ctx_fake, _, _ = self.encoder(seq_fake, seq_lengths_fake)
-
+        else:
+            ctx_fake = None
         ctx_mask = seq_mask
         # Init the reward shaping
         last_dist = np.zeros(batch_size, np.float32)
@@ -684,8 +685,8 @@ class Seq2SeqAgent(BaseAgent):
                             new_prob = torch.unsqueeze(new_prob,1)
                             label = label.type(torch.cuda.FloatTensor)
                             new_prob = new_prob.type(torch.cuda.FloatTensor)
-                            print("PROB 2 =",new_prob.shape)
-                            print("LABELS", label.shape)
+                            #print("PROB 2 =",new_prob.shape)
+                            #print("LABELS", label.shape)
                             #epmat_loss += self.softmax_loss(new_prob,label) 
                             epmat_loss += F.cross_entropy(new_prob,label)
                             #epmat_loss += nn.CrossEntropyLoss(new_prob,label) 
