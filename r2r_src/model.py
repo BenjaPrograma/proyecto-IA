@@ -70,12 +70,12 @@ class EpisodicMatchingInstruction(nn.Module):
         self.fc1 = nn.Linear(hidden_size*2, hidden_size)
         self.relu1 = nn.LeakyReLU()
         self.fc2 = nn.Linear(hidden_size, 3)
-        #self.softmax = nn.Softmax(dim=1)
+        self.softmax = nn.Softmax(dim=1)
         ## USAR CROSS ENTROPY LOSS
 
     def forward(self, h):
         h = self.relu1(self.fc1(h))
-        h = self.fc2(h)
+        h = self.softmax(self.fc2(h))
         return h
 
 
