@@ -652,14 +652,14 @@ class Seq2SeqAgent(BaseAgent):
                             #print("SHAPE FAKE CTX",ctx_fake.shape)
                             #print("SHAPE CTX SLI",ctx[:,0,:].detach().shape)
                             #asd = torch.cat((h1, ctx[:,0,:]), dim=1)
-                            ctx = ctx[:,0,:].detach()
+                            ctx_temp = ctx[:,0,:].detach()
                             ctx_fake = ctx_fake[:,0,:].detach()
                             for i in range(batch_size):
                                 if random.random() > 0.5:
                                     mix_ctx.append(ctx_fake.select(0,i))
                                     label.append(0)
                                 else:
-                                    mix_ctx.append(ctx.select(0,i))
+                                    mix_ctx.append(ctx_temp.select(0,i))
                                     label.append(1)
                             label = torch.tensor(label)
                             label = label.float().unsqueeze(1).cuda()
@@ -668,7 +668,7 @@ class Seq2SeqAgent(BaseAgent):
                             mix_ctx = torch.stack(mix_ctx).cuda()
                             #print("MIX SHAPE",mix_ctx.shape)
                             vl_pair = torch.cat((h1_temp,mix_ctx), dim=1)
-                            prob = self.matching_instruction(vl_pair)
+                            prob = self.episodic_matching_instruction(vl_pair)
                             #print("PROB SHAPE", prob.shape)
                             #prob = prob.select(0,0)
 
