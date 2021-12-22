@@ -672,7 +672,7 @@ class Seq2SeqAgent(BaseAgent):
                             #print("PROB SHAPE", prob.shape)
                             #prob = prob.select(0,0)
                             print("PROB = ", prob)
-                            epmat_loss += F.cross_entropy(prob,label) 
+                            epmat_loss += self.softmax_loss(prob,label) 
 
 
 
