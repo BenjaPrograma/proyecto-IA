@@ -689,6 +689,7 @@ class Seq2SeqAgent(BaseAgent):
                             #print("LABELS", label.shape)
                             #epmat_loss += self.softmax_loss(new_prob,label) 
                             epmat_loss += F.cross_entropy(new_prob,label)
+                            print(epmat_loss)
                             #epmat_loss += nn.CrossEntropyLoss(new_prob,label) 
 
 
