@@ -893,4 +893,4 @@ def generate_ablation():
         #instr = replace_object(pathid_to_obj_idx, instr,j,pathid, list_of_objs)
         #print("REPLACED OBJECT", instr)
         #print("################")
-generate_ablation()
+#generate_ablation()
