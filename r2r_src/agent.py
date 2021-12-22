@@ -680,8 +680,8 @@ class Seq2SeqAgent(BaseAgent):
                             new_prob = torch.unsqueeze(new_prob,1)
                             print("PROB 2 =",new_prob.shape)
                             print("LABELS", label.shape)
-                            epmat_loss += self.softmax_loss(new_prob,label) 
-                            #epmat_loss += nn.CrossEntropyLoss(new_prob,label) 
+                            #epmat_loss += self.softmax_loss(new_prob,label) 
+                            epmat_loss += nn.CrossEntropyLoss(new_prob,label) 
 
 
 
