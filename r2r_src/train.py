@@ -212,6 +212,7 @@ def train(train_env, tok, n_iters, log_every=100, val_envs={}, aug_env=None):
         pro_loss = sum(listner.logs['pro_loss']) / log_length
         mat_loss = sum(listner.logs['mat_loss']) / log_length
         matins_loss = sum(listner.logs['matins_loss']) / log_length
+        epmatins_loss = sum(listner.logs['epmatins_loss']) / log_length
         total_loss = sum(listner.logs['total_loss']) / log_length
         fea_loss = sum(listner.logs['fea_loss']) / log_length
         ang_loss = sum(listner.logs['ang_loss']) / log_length
@@ -225,6 +226,7 @@ def train(train_env, tok, n_iters, log_every=100, val_envs={}, aug_env=None):
         writer.add_scalar("loss/mat_loss", mat_loss, idx)
         writer.add_scalar("loss/total_loss", total_loss, idx)
         writer.add_scalar("loss/matins_loss", matins_loss, idx)
+        writer.add_scalar("loss/epmatins_loss", epmatins_loss, idx)
         writer.add_scalar("loss/fea_loss", fea_loss, idx)
         writer.add_scalar("loss/ang_loss", ang_loss, idx)
         writer.add_scalar("total_actions", total, idx)
@@ -236,6 +238,8 @@ def train(train_env, tok, n_iters, log_every=100, val_envs={}, aug_env=None):
             print("MATINS LOSS =", matins_loss)
         if args.matWeight > 0:
             print("MAT LOSS =", mat_loss)
+        if args.epMatWeight > 0:
+            print("EPISOCID MAT LOSS =", epmatins_loss)
         print("total_actions", total)
         print("max_rl_length", max_rl_length)
 

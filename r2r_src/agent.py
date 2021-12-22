@@ -95,7 +95,7 @@ class Seq2SeqAgent(BaseAgent):
         self.tok = tok
         self.episode_len = episode_len
         self.feature_size = self.env.feature_size
-        self.nltk_all_objs_list, self.nltk_scan_to_objs = load_nltk_data()
+        #self.nltk_all_objs_list, self.nltk_scan_to_objs = load_nltk_data()
 
         self.list_of_objs = load_list_of_objs()
         self.pathid_to_direction_idx = load_pathid_to_direction_idx() 
@@ -127,6 +127,8 @@ class Seq2SeqAgent(BaseAgent):
             self.progress_indicator = model.ProgressIndicator().cuda()
             self.matching_network = model.MatchingNetwork().cuda()
             self.matching_instruction = model.MatchCorrectInstruction().cuda()
+            self.episodic_matching_instruction = model.EpisodicMatchingInstruction().cuda()
+
             self.feature_predictor = model.FeaturePredictor().cuda()
             self.angle_predictor = model.AnglePredictor().cuda()
 
@@ -169,6 +171,7 @@ class Seq2SeqAgent(BaseAgent):
                 list(self.progress_indicator.parameters())
                 + list(self.matching_instruction.parameters())
                 + list(self.matching_network.parameters())
+                + list(self.episodic_matching_instruction.parameters())
                 + list(self.feature_predictor.parameters())
                 + list(self.angle_predictor.parameters())
                 , lr=args.matins_lr)
@@ -180,6 +183,7 @@ class Seq2SeqAgent(BaseAgent):
                 ("matching_instruction", self.matching_instruction, self.aux_optimizer),
                 ("progress_indicator", self.progress_indicator, self.aux_optimizer),
                 ("matching_network", self.matching_network, self.aux_optimizer),
+                ("episodic_matching_instruction", self.episodic_matching_instruction, self.aux_optimizer),
                 ("feature_predictor", self.feature_predictor, self.aux_optimizer),
                 ("angle_predictor", self.angle_predictor, self.aux_optimizer)
                 ]
@@ -232,6 +236,7 @@ class Seq2SeqAgent(BaseAgent):
             pathid = ob["path_id"]
             scan = ob["scan"]
             fake_instr = gen_fake_instruction(self.pathid_to_direction_idx, self.pathid_to_obj_idx, self.directions_and_contrafactual, self.list_of_objs, instr, instr_idx, pathid)
+            print("pathid",pathid,"instr_idx",instr_idx)
             if fake_instr == False:
                 return None, None, None, None
             
@@ -417,6 +422,10 @@ class Seq2SeqAgent(BaseAgent):
         
         #print("SEQ INFO", seq_fake, seq_lengths_fake)
         perm_obs = obs[perm_idx]
+        print("OBS",obs)
+        print("PERM OBS",perm_obs)
+        print("SEQ",seq)
+        print("SEQ LENGTHS",seq_lengths)
 
         ctx, h_t, c_t = self.encoder(seq, seq_lengths) # SERA ESTE EL ENCODING FINAL?
 
@@ -440,7 +449,7 @@ class Seq2SeqAgent(BaseAgent):
             'instr_id': ob['instr_id'],
             'path': [(ob['viewpoint'], ob['heading'], ob['elevation'])]
         } for ob in perm_obs]
-
+        print("TRAJ",traj)
         # For test result submission
         visited = [set() for _ in perm_obs]
 
@@ -460,6 +469,9 @@ class Seq2SeqAgent(BaseAgent):
         h1 = h_t
         fea_loss = 0.
         ang_loss = 0.
+        epmat_loss = 0.
+        # START EPISODIO
+
         for t in range(self.episode_len):
             ObjFeature_mask = None
             sparseObj = None
@@ -578,6 +590,82 @@ class Seq2SeqAgent(BaseAgent):
             last_dist[:] = dist
 
             if args.aux_option:
+
+                decode_mask = [torch.tensor(mask) for mask in masks]
+                decode_mask = (1 - torch.stack(decode_mask, dim=1)).bool().cuda()  # different definition about mask
+                args.all_h_all_i = True
+                # AUX OPTIONS INSIDE EPISODE
+                if args.epMatWeight > 0 and not (args.no_train_rl and train_rl):
+                    # DETERMINAR COMO VER LOS VECTORES
+
+                    # TOMAR ALL EL H HASTA AHORA Y PREGUNTAR SI SE COINCIDE CON EL
+                    # ULTIMO TROZO DE INSTRUCCION
+                    # ALIAS: WHAT ARE YOU CURRENTLY WATCHING? (ORDER, PERMUTED ORDER)
+
+                    # TOMAR ALL EL H HASTA AHORA Y PREGUNTAR SI SE COINCIDE CON
+                    # EL TOTAL DE LA INSTRUCCION
+                    # ALIAS: WHAT HAVE YOU WATCHED? (ORDER, PERMUTED ORDER)
+
+                    # TOMAR EL ULTIMO H Y PREGUNTAR SI SE COINCIDE CON EL ULTIMO TROZO
+                    # ALIAS: WHAT ARE YOU WATCHING? ( ACA NO HAY ORDER PARA USARSE)
+
+                    # O TOMAR EL ULTIMO H Y PREGUNTARSE SI SE COINCIDE CON
+                    # EL TOTAL DE LA INSTRUCCION
+                    # ALIAS: NOT POSSIBLE?
+                    
+                    # VER CUANDO PREGUNTAR, SI SOLO CUANDO ESTE EN CAMINO CORRECTO
+                    # O SI PREGUNTAR SIEMPRE
+                    # VER OCMO LO HACEN EN ANGLE AND FEATURE
+                    # SI ES TEACHER FORCING SIEMPRE ES CORRECTO
+                    # VER ENTONCES QUE NO HAYA TERMINADO SOLAMENTE
+
+                    if ctx_fake != None:
+                        if args.all_h_all_i == True:
+                            for i in range(v_ctx.shape[1]):
+                                # CREA UN ARREGLO NUEVO DE H1
+                                if i == 0:
+                                    h1 = v_ctx[:, i, :]
+                                else:
+                                    _h1 = v_ctx[:, i, :]
+                                    valid_mask = ~decode_mask[:, i] # True: move, False: already finished BEFORE THIS ACTION
+                                    h1 = h1 * (1-valid_mask.float().unsqueeze(1)) + _h1 * valid_mask.float().unsqueeze(1) # update active feature
+                                    # SI ES MOVIMIENTO, LE AGREGA A H1 LA SUMA
+                                    # SI YA TERMINO LA DEJA IGUAL
+                            
+                            batch_size = h1.shape[0]
+                            mix_ctx = []
+                            label = []
+                            #print("DIM", args.rnn_dim)
+                            #print("SHAPE H1",h1.shape)
+                            #print("SHAPE H1 sl",h1.shape)
+                            #print("SHAPE CTX",ctx.shape)
+                            #print("SHAPE FAKE CTX",ctx_fake.shape)
+                            #print("SHAPE CTX SLI",ctx[:,0,:].detach().shape)
+                            #asd = torch.cat((h1, ctx[:,0,:]), dim=1)
+                            ctx = ctx[:,0,:].detach()
+                            ctx_fake = ctx_fake[:,0,:].detach()
+                            for i in range(batch_size):
+                                if random.random() > 0.5:
+                                    mix_ctx.append(ctx_fake.select(0,i))
+                                    label.append(0)
+                                else:
+                                    mix_ctx.append(ctx.select(0,i))
+                                    label.append(1)
+                            label = torch.tensor(label)
+                            label = label.float().unsqueeze(1).cuda()
+                            #print("SHAPE LABEL",label.shape)
+
+                            mix_ctx = torch.stack(mix_ctx).cuda()
+                            #print("MIX SHAPE",mix_ctx.shape)
+                            vl_pair = torch.cat((h1,mix_ctx), dim=1)
+                            prob = self.matching_instruction(vl_pair)
+                            #print("PROB SHAPE", prob.shape)
+                            #prob = prob.select(0,0)
+
+                            epmat_loss += F.cross_entropy(prob,label) 
+
+
+
                 if args.modfea:
                     _mask = torch.from_numpy(mask).cuda().bool()
                     _mask = ~_mask # 1 invalid, 0 valid
@@ -622,6 +710,17 @@ class Seq2SeqAgent(BaseAgent):
             # Early exit if all ended
             if ended.all():
                 break
+
+        #### 
+        if ctx_fake == None or not (args.epMatWeight > 0 and not (args.no_train_rl and train_rl)):
+            self.logs['epmatins_loss'].append(0)
+        else:
+            epmat_loss = epmat_loss *args.epMatWeight
+            self.loss += epmat_loss
+            self.logs['epmatins_loss'].append(epmat_loss.detach())
+        # ACA TERMINA EL EPISODIO # 
+        #### 
+        
 
         if train_rl:
             # Last action in A2C

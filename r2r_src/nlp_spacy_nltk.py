@@ -857,3 +857,40 @@ def gen_fake_instruction(pathid_to_direction_idx, pathid_to_obj_idx, directions_
     return " ".join(instr_tok)
 
 #load_pathid_to_obj_idx()
+
+
+def generate_ablation():
+    pathid = 6250
+
+    list_of_objs = load_list_of_objs()
+    pathid_to_direction_idx = load_pathid_to_direction_idx() 
+    directions_and_contrafactual = load_directions_and_contrafactual()
+    pathid_to_obj_idx = load_pathid_to_obj_idx()
+    instructions =  ["Walk down one flight of stairs and stop on the landing.",
+      "Walk between the columns and make a sharp turn right. Walk down the steps and stop on the landing. ", 
+      "walk forward then turn right at the stairs then go down the stairs. "]
+    
+    for j, instr in enumerate(instructions):
+        instr = string_cleaner_nlp(instr)
+        instr = instr.split(' ')
+        instr = gen_fake_instruction(pathid_to_direction_idx, pathid_to_obj_idx, directions_and_contrafactual, list_of_objs, instr, j, pathid)
+        print("INSTR FAKE",instr)
+        #print("NORMAL INSTRUCTION", instr)
+        ## NO OBJECT
+        #backup = copy.copy(instr)
+        #instr = remove_object(pathid_to_obj_idx, instr,j,pathid)
+        #print("REMOVED OBJECT",instr)
+        #instr = copy.copy(backup)
+        #instr = " ".join(["<UNK>" for word in instr.split(' ')])
+        #print("NO TEXT", instr)
+        #instr = copy.copy(backup)
+        #instr = remove_directions(pathid_to_direction_idx, instr,j,pathid)
+        #print("REMOVED DIRECTIONS", instr)
+        #instr = copy.copy(backup)
+        #instr = contrafactual_directions(pathid_to_direction_idx, instr,j,pathid, directions_and_contrafactual)
+        #print("CONTRAFACTUAL DIRECTIONS",instr)
+        #instr = copy.copy(backup)
+        #instr = replace_object(pathid_to_obj_idx, instr,j,pathid, list_of_objs)
+        #print("REPLACED OBJECT", instr)
+        #print("################")
+generate_ablation()
