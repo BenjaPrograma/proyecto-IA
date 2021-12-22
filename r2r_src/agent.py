@@ -677,11 +677,13 @@ class Seq2SeqAgent(BaseAgent):
                             #prob = prob.select(0,0)
                             #print("PROB = ", prob)
                             new_prob = torch.max(prob,1)[1]
-                            new_prob = torch.flatten(new_prob)
+                            #new_prob = torch.flatten(new_prob)
                             
-                            label = label.squeeze()
-                            label = torch.flatten(label)
-                            #new_prob = torch.unsqueeze(new_prob,1)
+                            #label = label.squeeze()
+                            #label = torch.flatten(label)
+                            new_prob = torch.unsqueeze(new_prob,1)
+                            label = label.type(torch.cuda.FloatTensor)
+                            new_prob = new_prob.type(torch.cuda.FloatTensor)
                             print("PROB 2 =",new_prob.shape)
                             print("LABELS", label.shape)
                             #epmat_loss += self.softmax_loss(new_prob,label) 
