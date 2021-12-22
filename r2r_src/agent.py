@@ -671,7 +671,7 @@ class Seq2SeqAgent(BaseAgent):
                             prob = self.episodic_matching_instruction(vl_pair)
                             #print("PROB SHAPE", prob.shape)
                             #prob = prob.select(0,0)
-                            print("PROB = ", prob)
+                            #print("PROB = ", prob)
                             epmat_loss += self.softmax_loss(prob,label) 
 
 
