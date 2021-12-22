@@ -661,6 +661,10 @@ class Seq2SeqAgent(BaseAgent):
                                 else:
                                     mix_ctx.append(ctx_temp.select(0,i))
                                     label.append(1)
+
+                                ## TODO
+                                ## elif random == 3:
+                                ## 
                             label = torch.tensor(label)
                             label = label.float().unsqueeze(1).cuda()
                             #print("SHAPE LABEL",label.shape)
@@ -672,10 +676,11 @@ class Seq2SeqAgent(BaseAgent):
                             #print("PROB SHAPE", prob.shape)
                             #prob = prob.select(0,0)
                             #print("PROB = ", prob)
-                            print("PROB 2 =",torch.max(prob,1)[1])
-                            print("LABELS", label)
-                            #epmat_loss += self.softmax_loss(prob,label) 
-                            epmat_loss += nn.CrossEntropyLoss(torch.max(prob,1)[1],label) 
+                            new_prob = torch.max(prob,1)[1]
+                            print("PROB 2 =",new_prob.shape)
+                            print("LABELS", label.shape)
+                            #epmat_loss += self.softmax_loss(new_prob,label) 
+                            epmat_loss += nn.CrossEntropyLoss(new_prob,label) 
 
 
 
