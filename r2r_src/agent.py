@@ -685,7 +685,7 @@ class Seq2SeqAgent(BaseAgent):
                             #label = torch.flatten(label)
                             #new_prob = torch.unsqueeze(new_prob,1)
                             #new_prob = torch.unsqueeze(new_prob)
-                            t1 = torch.Tensor([1])
+                            t1 = torch.tensor([3])
                             new_prob = torch.cat((new_prob, t1),dim=1)
                             #new_prob = new_prob.fill(1,3)
                             print(new_prob)
