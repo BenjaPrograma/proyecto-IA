@@ -668,7 +668,7 @@ class Seq2SeqAgent(BaseAgent):
                                 ## elif random == 3:
                                 ## 
                             label = torch.tensor(label)
-                            label = label.float().unsqueeze(1).cuda()
+                            label = label.cuda()
                             #print("SHAPE LABEL",label.shape)
 
                             mix_ctx = torch.stack(mix_ctx).cuda()
