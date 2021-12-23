@@ -683,8 +683,11 @@ class Seq2SeqAgent(BaseAgent):
                             
                             #label = label.squeeze()
                             #label = torch.flatten(label)
-                            new_prob = torch.unsqueeze(new_prob,1)
-                            new_prob = new_prob.fill(1,3)
+                            #new_prob = torch.unsqueeze(new_prob,1)
+                            #new_prob = torch.unsqueeze(new_prob)
+                            t1 = torch.Tensor([1])
+                            new_prob = torch.cat((new_prob, t1),dim=1)
+                            #new_prob = new_prob.fill(1,3)
                             print(new_prob)
                             label = label.type(torch.cuda.FloatTensor)
                             new_prob = new_prob.type(torch.cuda.FloatTensor)
