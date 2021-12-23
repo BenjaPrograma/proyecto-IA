@@ -693,15 +693,15 @@ class Seq2SeqAgent(BaseAgent):
                             #new_prob = new_prob.type(torch.cuda.FloatTensor)
                             #new_prob = new_prob[:,3]
                             #print(new_prob.shape)
-                            print("PROB 2 =",prob.shape)
-                            print("LABELS", label.shape)
-                            #print("NEW PROB",new_prob)
+                            #print("PROB 2 =",prob.shape)
+                            #print("LABELS", label.shape)
+                            ##print("NEW PROB",new_prob)
                             #print("LABELS",label)
                             #epmat_loss += self.softmax_loss(new_prob,label) 
                             #epmat_loss += F.cross_entropy(new_prob,label)
                             #print(epmat_loss)
                             epmat_loss += self.epmat_criterion(prob,label) 
-                            print(epmat_loss)
+                            #print(epmat_loss)
 
 
 
