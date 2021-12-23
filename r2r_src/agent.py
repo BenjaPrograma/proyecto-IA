@@ -663,43 +663,19 @@ class Seq2SeqAgent(BaseAgent):
                                 else:
                                     mix_ctx.append(ctx_temp.select(0,i))
                                     label.append(1)
-
                                 ## TODO
+                                ## TEMPORAL FOOLING (MOSTRAR UNO PASADO DEL
+                                # MISMO INSTR ID
+                                # PARA ESTO VER SI SALE MAS FACIL PASAR LISTA
+                                # Y DE AHI HACER SLICING DE VUELTA)
                                 ## elif random == 3:
                                 ## 
                             label = torch.tensor(label)
                             label = label.cuda()
-                            #print("SHAPE LABEL",label.shape)
-
                             mix_ctx = torch.stack(mix_ctx).cuda()
-                            #print("MIX SHAPE",mix_ctx.shape)
                             vl_pair = torch.cat((h1_temp,mix_ctx), dim=1)
                             prob = self.episodic_matching_instruction(vl_pair)
-                            #print("PROB SHAPE", prob.shape)
-                            #prob = prob.select(0,0)
-                            #print("PROB = ", prob)
-                            #new_prob = torch.max(prob,1)[1]
-                            #new_prob = torch.flatten(new_prob)
-                            
                             label = label.squeeze()
-                            #label = torch.flatten(label)
-                            #new_prob = torch.unsqueeze(new_prob,1)
-                            #new_prob = torch.unsqueeze(new_prob)
-                            #t1 = torch.tensor([3])
-                            #new_prob = torch.cat((new_prob, t1),dim=1)
-                            #new_prob = new_prob.fill(1,3)
-                            #print(new_prob)
-                            #label = label.type(torch.cuda.FloatTensor)
-                            #new_prob = new_prob.type(torch.cuda.FloatTensor)
-                            #new_prob = new_prob[:,3]
-                            #print(new_prob.shape)
-                            #print("PROB 2 =",prob.shape)
-                            #print("LABELS", label.shape)
-                            ##print("NEW PROB",new_prob)
-                            #print("LABELS",label)
-                            #epmat_loss += self.softmax_loss(new_prob,label) 
-                            #epmat_loss += F.cross_entropy(new_prob,label)
-                            #print(epmat_loss)
                             epmat_loss += self.epmat_criterion(prob,label) 
                             #print(epmat_loss)
 
