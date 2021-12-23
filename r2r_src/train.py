@@ -239,7 +239,7 @@ def train(train_env, tok, n_iters, log_every=100, val_envs={}, aug_env=None):
         if args.matWeight > 0:
             print("MAT LOSS =", mat_loss)
         if args.epMatWeight > 0:
-            print("EPISOCID MAT LOSS =", epmatins_loss)
+            print("EPISODIC MAT LOSS =", epmatins_loss)
         print("total_actions", total)
         print("max_rl_length", max_rl_length)
 
