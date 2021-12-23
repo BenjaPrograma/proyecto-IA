@@ -200,6 +200,7 @@ class Seq2SeqAgent(BaseAgent):
         self.criterion = nn.CrossEntropyLoss(ignore_index=args.ignoreid, size_average=False)
         self.softmax_loss = torch.nn.CrossEntropyLoss(ignore_index=self.tok.word_to_index['<PAD>'])
         self.bce_loss = nn.BCELoss().cuda()
+        self.epmat_criterion = nn.CrossEntropyLoss()
 
         # Logs
         sys.stdout.flush()
@@ -683,16 +684,16 @@ class Seq2SeqAgent(BaseAgent):
                             #label = label.squeeze()
                             #label = torch.flatten(label)
                             new_prob = torch.unsqueeze(new_prob,1)
-                            label = label.type(torch.cuda.FloatTensor)
-                            new_prob = new_prob.type(torch.cuda.FloatTensor)
+                            label = label.type(torch.cuda.IntTensor)
+                            new_prob = new_prob.type(torch.cuda.IntTensor)
                             print("PROB 2 =",new_prob.shape)
                             print("LABELS", label.shape)
                             print("NEW PROB",new_prob)
                             print("LABELS",label)
                             #epmat_loss += self.softmax_loss(new_prob,label) 
-                            epmat_loss += F.cross_entropy(new_prob,label)
-                            print(epmat_loss)
-                            epmat_loss += nn.CrossEntropyLoss(new_prob,label) 
+                            #epmat_loss += F.cross_entropy(new_prob,label)
+                            #print(epmat_loss)
+                            epmat_loss += self.epmat_criterion(new_prob,label) 
                             print(epmat_loss)
 
 
