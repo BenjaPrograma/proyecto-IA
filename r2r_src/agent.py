@@ -258,9 +258,9 @@ class Seq2SeqAgent(BaseAgent):
 
     def _sort_batch_fake_instruction(self, obs):
         # GENERA FAKE OBJS
-        j = 0
+
         for ob in obs:
-            j +=1
+
             # FAKE INSTRUCTION GENERATION
             instr = ob["instructions"]
             instr = instr.split(' ')
@@ -268,13 +268,15 @@ class Seq2SeqAgent(BaseAgent):
             pathid = ob["path_id"]
             scan = ob["scan"]
             fake_instr = gen_fake_instruction(self.pathid_to_direction_idx, self.pathid_to_obj_idx, self.directions_and_contrafactual, self.list_of_objs, instr, instr_idx, pathid)
-            #print("pathid",pathid,"instr_idx",instr_idx)
+            print("pathid",pathid,"instr_idx",instr_idx)
+            print(instr)
+            print(fake_instr)
             if fake_instr == False:
                 return None, None, None, None
         
-            #fake_instr = gen_fake_nltk(self.nltk_all_objs_list, self.nltk_scan_to_objs, instr, scan)
+            #
             ob["fake_instr_encoding"] = self.tok.encode_sentence(fake_instr)
-        print("LEN OBS = ", j)
+        print("### END SORTED BATCH ###")
         seq_tensor = np.array([ob['fake_instr_encoding'] for ob in obs])
         seq_lengths = np.argmax(seq_tensor == padding_idx, axis=1)
         seq_lengths[seq_lengths == 0] = seq_tensor.shape[1]     # Full length
