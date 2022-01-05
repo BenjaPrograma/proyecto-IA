@@ -227,9 +227,40 @@ class Seq2SeqAgent(BaseAgent):
                mask.byte().cuda(),  \
                list(seq_lengths), list(perm_idx)
 
+    def _sort_batch_fake_instructions_for_episode(self, obs):
+        for ob in obs:
+            # FAKE INSTRUCTION GENERATION
+            instr = ob["instructions"]
+            instr = instr.split(' ')
+            instr_idx = ob["instr_idx"]
+            pathid = ob["path_id"]
+            fake_instr = gen_fake_instruction(
+                self.pathid_to_direction_idx, self.pathid_to_obj_idx, 
+                self.directions_and_contrafactual, self.list_of_objs, 
+                instr, instr_idx, pathid)
+            if fake_instr == False:
+                return None, None, None, None
+            
+            ob["fake_instr_encoding"] = self.tok.encode_sentence(fake_instr)
+
+        seq_tensor = np.array([ob['fake_instr_encoding'] for ob in obs])
+        seq_lengths = np.argmax(seq_tensor == padding_idx, axis=1)
+        seq_lengths[seq_lengths == 0] = seq_tensor.shape[1]     # Full length
+
+        seq_tensor = torch.from_numpy(seq_tensor)
+        seq_lengths = torch.from_numpy(seq_lengths)
+
+        # Sort sequences by lengths
+        seq_lengths, perm_idx = seq_lengths.sort(0, True)       # True -> descending
+        sorted_tensor = seq_tensor[perm_idx]
+        return Variable(sorted_tensor, requires_grad=False).long().cuda()
+
+
     def _sort_batch_fake_instruction(self, obs):
         # GENERA FAKE OBJS
+        j = 0
         for ob in obs:
+            j +=1
             # FAKE INSTRUCTION GENERATION
             instr = ob["instructions"]
             instr = instr.split(' ')
@@ -240,9 +271,10 @@ class Seq2SeqAgent(BaseAgent):
             #print("pathid",pathid,"instr_idx",instr_idx)
             if fake_instr == False:
                 return None, None, None, None
-            
+        
             #fake_instr = gen_fake_nltk(self.nltk_all_objs_list, self.nltk_scan_to_objs, instr, scan)
             ob["fake_instr_encoding"] = self.tok.encode_sentence(fake_instr)
+        print("LEN OBS = ", j)
         seq_tensor = np.array([ob['fake_instr_encoding'] for ob in obs])
         seq_lengths = np.argmax(seq_tensor == padding_idx, axis=1)
         seq_lengths[seq_lengths == 0] = seq_tensor.shape[1]     # Full length
@@ -632,6 +664,8 @@ class Seq2SeqAgent(BaseAgent):
                     # VER ENTONCES QUE NO HAYA TERMINADO SOLAMENTE
                     if ctx_fake != None:
                         if args.current_image_and_current_text:
+
+                            #ctx_fake= self._sort_batch_fake_instructions_for_episode(obs)
                             #for i in range(v_ctx_temp.shape[1]):
                             #    # CREA UN ARREGLO NUEVO DE H1
                             #    if i == 0:
@@ -648,11 +682,11 @@ class Seq2SeqAgent(BaseAgent):
                             batch_size = h1.shape[0]
                             mix_ctx = []
                             label = []
-                            print("CTX NORMAL SHAPE", ctx.shape)
+                            #print("CTX NORMAL SHAPE", ctx.shape)
                             ctx_temp = ctx[:,0,:].detach()
-                            print("CTX_TEMP WITH SLICE [:,0,]", ctx_temp.shape)
+                            #print("CTX_TEMP WITH SLICE [:,0,]", ctx_temp.shape)
                             ctx_fake_temp = ctx_fake[:,0,:].detach()
-                            print_mix_ctx = 0
+                            print_mix_ctx = 1
                             for i in range(batch_size):
                                 if random.random() > 0.5:
                                     mix_ctx.append(ctx_fake_temp.select(0,i))
