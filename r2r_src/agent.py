@@ -652,9 +652,8 @@ class Seq2SeqAgent(BaseAgent):
                             ctx_temp = ctx[:,0,:].detach()
                             print("CTX_TEMP WITH SLICE [:,0,]", ctx_temp.shape)
                             ctx_fake_temp = ctx_fake[:,0,:].detach()
-                            
+                            print_mix_ctx = 0
                             for i in range(batch_size):
-                                print_mix_ctx = 0
                                 if random.random() > 0.5:
                                     mix_ctx.append(ctx_fake_temp.select(0,i))
                                     if print_mix_ctx == 0:
