@@ -64,18 +64,28 @@ class MatchCorrectInstruction(nn.Module):
         return h
 
 class EpisodicMatchingInstruction(nn.Module):
-    def __init__(self):
+    def __init__(self, softmax=False):
         super(EpisodicMatchingInstruction, self).__init__()
         hidden_size = args.rnn_dim
+        self.softmax = softmax
         self.fc1 = nn.Linear(hidden_size*2, hidden_size)
         self.relu1 = nn.LeakyReLU()
-        self.fc2 = nn.Linear(hidden_size, 3)
-        self.softmax = nn.Softmax(dim=1)
+        if self.softmax:
+            # 3 OUTPUTS
+            self.fc2 = nn.Linear(hidden_size, 3)
+            self.softmax = nn.Softmax(dim=1)
+        else:
+            # BINARY
+            self.fc2 = nn.Linear(hidden_size, 1)
+            self.sigmoid = nn.Sigmoid()
         ## USAR CROSS ENTROPY LOSS
 
     def forward(self, h):
         h = self.relu1(self.fc1(h))
-        h = self.softmax(self.fc2(h))
+        if self.softmax:
+            h = self.softmax(self.fc2(h))
+        else:
+            h = self.sigmoid(self.fc2(h))
         return h
 
 

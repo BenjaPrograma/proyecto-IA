@@ -127,7 +127,7 @@ class Seq2SeqAgent(BaseAgent):
             self.progress_indicator = model.ProgressIndicator().cuda()
             self.matching_network = model.MatchingNetwork().cuda()
             self.matching_instruction = model.MatchCorrectInstruction().cuda()
-            self.episodic_matching_instruction = model.EpisodicMatchingInstruction().cuda()
+            self.episodic_matching_instruction = model.EpisodicMatchingInstruction(softmax=False).cuda()
 
             self.feature_predictor = model.FeaturePredictor().cuda()
             self.angle_predictor = model.AnglePredictor().cuda()
@@ -592,20 +592,20 @@ class Seq2SeqAgent(BaseAgent):
             last_dist[:] = dist
 
             if args.aux_option:
-                h_t_temp = h_t.unsqueeze(0)
-                c_t_temp = c_t.unsqueeze(0)
+                #h_t_temp = h_t.unsqueeze(0)
+                #c_t_temp = c_t.unsqueeze(0)
                 insts = utils.gt_words(perm_obs)
 
             # if args.modspe:
             #     l = ctx.size(1)
             #     insts = insts[:, :l]
             
-                v_ctx_temp = torch.stack(v_ctx, dim=1)
-                vl_ctx_temp = torch.stack(vl_ctx, dim=1)
+                #v_ctx_temp = torch.stack(v_ctx, dim=1)
+                #vl_ctx_temp = torch.stack(vl_ctx, dim=1)
 
-                decode_mask = [torch.tensor(mask) for mask in masks]
-                decode_mask = (1 - torch.stack(decode_mask, dim=1)).bool().cuda()  # different definition about mask
-                args.all_h_all_i = True
+                #decode_mask = [torch.tensor(mask) for mask in masks]
+                #decode_mask = (1 - torch.stack(decode_mask, dim=1)).bool().cuda()  # different definition about mask
+                args.current_image_and_current_text = True
                 # AUX OPTIONS INSIDE EPISODE
                 if args.epMatWeight > 0 and not (args.no_train_rl and train_rl):
                     # DETERMINAR COMO VER LOS VECTORES
@@ -630,38 +630,42 @@ class Seq2SeqAgent(BaseAgent):
                     # VER OCMO LO HACEN EN ANGLE AND FEATURE
                     # SI ES TEACHER FORCING SIEMPRE ES CORRECTO
                     # VER ENTONCES QUE NO HAYA TERMINADO SOLAMENTE
-
                     if ctx_fake != None:
-                        if args.all_h_all_i == True:
-                            for i in range(v_ctx_temp.shape[1]):
-                                # CREA UN ARREGLO NUEVO DE H1
-                                if i == 0:
-                                    h1_temp = v_ctx_temp[:, i, :]
-                                else:
-                                    _h1_temp = v_ctx_temp[:, i, :]
-                                    valid_mask = ~decode_mask[:, i] # True: move, False: already finished BEFORE THIS ACTION
-                                    h1_temp = h1_temp * (1-valid_mask.float().unsqueeze(1)) + _h1_temp * valid_mask.float().unsqueeze(1) # update active feature
-                                    # SI ES MOVIMIENTO, LE AGREGA A H1 LA SUMA
-                                    # SI YA TERMINO LA DEJA IGUAL
+                        if args.current_image_and_current_text:
+                            #for i in range(v_ctx_temp.shape[1]):
+                            #    # CREA UN ARREGLO NUEVO DE H1
+                            #    if i == 0:
+                            #        h1_temp = v_ctx_temp[:, i, :]
+                            #    else:
+                            #        _h1_temp = v_ctx_temp[:, i, :]
+                            #        valid_mask = ~decode_mask[:, i] # True: move, False: already finished BEFORE THIS ACTION
+                            #        h1_temp = h1_temp * (1-valid_mask.float().unsqueeze(1)) + _h1_temp * valid_mask.float().unsqueeze(1) # update active feature
+                            #        # SI ES MOVIMIENTO, LE AGREGA A H1 LA SUMA
+                            #        # SI YA TERMINO LA DEJA IGUAL
                             
-                            batch_size = h1_temp.shape[0]
+                            # ACA SIMPLEMENTE USAMOS h1
+                            # ESTAMOS USANDO EL ACTUAL?
+                            batch_size = h1.shape[0]
                             mix_ctx = []
                             label = []
-                            #print("DIM", args.rnn_dim)
-                            #print("SHAPE H1",h1.shape)
-                            #print("SHAPE H1 sl",h1.shape)
-                            #print("SHAPE CTX",ctx.shape)
-                            #print("SHAPE FAKE CTX",ctx_fake.shape)
-                            #print("SHAPE CTX SLI",ctx[:,0,:].detach().shape)
-                            #asd = torch.cat((h1, ctx[:,0,:]), dim=1)
+                            print("CTX NORMAL SHAPE", ctx.shape)
                             ctx_temp = ctx[:,0,:].detach()
+                            print("CTX_TEMP WITH SLICE [:,0,]", ctx_temp.shape)
                             ctx_fake_temp = ctx_fake[:,0,:].detach()
+                            
                             for i in range(batch_size):
+                                print_mix_ctx = 0
                                 if random.random() > 0.5:
                                     mix_ctx.append(ctx_fake_temp.select(0,i))
+                                    if print_mix_ctx == 0:
+                                        print("MIX CTX SHAPE", ctx_fake_temp.select(0,i).shape)
+                                        print_mix_ctx = 1
                                     label.append(0)
                                 else:
                                     mix_ctx.append(ctx_temp.select(0,i))
+                                    if print_mix_ctx == 0:
+                                        print("MIX CTX SHAPE", ctx_fake_temp.select(0,i).shape)
+                                        print_mix_ctx = 1
                                     label.append(1)
                                 ## TODO
                                 ## TEMPORAL FOOLING (MOSTRAR UNO PASADO DEL
@@ -670,13 +674,23 @@ class Seq2SeqAgent(BaseAgent):
                                 # Y DE AHI HACER SLICING DE VUELTA)
                                 ## elif random == 3:
                                 ## 
+                            
+                            # ESTO ES PARA BINARY CROSS ENTROPY
                             label = torch.tensor(label)
-                            label = label.cuda()
+                            label = label.float().unsqueeze(1).cuda()
                             mix_ctx = torch.stack(mix_ctx).cuda()
-                            vl_pair = torch.cat((h1_temp,mix_ctx), dim=1)
-                            prob = self.episodic_matching_instruction(vl_pair)
-                            label = label.squeeze()
-                            epmat_loss += self.epmat_criterion(prob,label) 
+                            vl_pair = torch.cat((h1,mix_ctx), dim=1)
+                            prob = self.matching_instruction(vl_pair)
+                            epmat_loss += F.binary_cross_entropy(prob,label)
+
+                            # CON ESTO LO HICE FUNCIONAR PARA SOFTMAX
+                            #label = torch.tensor(label)
+                            #label = label.cuda()
+                            #mix_ctx = torch.stack(mix_ctx).cuda()
+                            #vl_pair = torch.cat((h1,mix_ctx), dim=1)
+                            #prob = self.episodic_matching_instruction(vl_pair)
+                            #label = label.squeeze()
+                            #epmat_loss += self.epmat_criterion(prob,label) 
                             #print(epmat_loss)
 
 

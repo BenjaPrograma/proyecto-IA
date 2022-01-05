@@ -10,9 +10,7 @@ import nltk
 #nltk.download('wordnet')
 from nltk.corpus import wordnet
 
-
 import re
-
 import time
 
 
@@ -682,9 +680,10 @@ def spacy_obj_instruction():
     with open(basepath + 'pathid_to_obj_idx'+'.pkl', 'wb') as f:
        pickle.dump(PATHID_TO_OBJ_IDX, f, 3)
     # EXAMPLE:
-    #{6250: [[(5, 6, 'stairs')], [(3, 4, 'columns'), (12, 14, 'the steps')], [(7, 8, 'stairs'), (12, 13, 'stairs')]]}
+    # {6250: [[(5, 6, 'stairs')], [(3, 4, 'columns'), (12, 14, 'the steps')], [(7, 8, 'stairs'), (12, 13, 'stairs')]]}
 
-#spacy_obj_instruction()
+
+# spacy_obj_instruction()
 
 
 def load_pathid_to_obj_idx():
