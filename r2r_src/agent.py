@@ -269,7 +269,7 @@ class Seq2SeqAgent(BaseAgent):
             pathid = ob["path_id"]
             scan = ob["scan"]
             fake_instr = gen_fake_instruction(self.pathid_to_direction_idx, self.pathid_to_obj_idx, self.directions_and_contrafactual, self.list_of_objs, instr, instr_idx, pathid)
-            _dict[pathid] +=1
+            #_dict[pathid] +=1
             #print("pathid",pathid,"instr_idx",instr_idx)
             #print(instr)
             #print(fake_instr)
@@ -293,7 +293,8 @@ class Seq2SeqAgent(BaseAgent):
         seq_lengths, perm_idx = seq_lengths.sort(0, True)       # True -> descending
         sorted_tensor = seq_tensor[perm_idx]
         mask = (sorted_tensor == padding_idx)[:,:seq_lengths[0]]    # seq_lengths[0] is the Maximum length
-
+        print("shape sq lengths", seq_lengths.shape)
+        print(list(seq_lengths))
         return Variable(sorted_tensor, requires_grad=False).long().cuda(), \
             mask.byte().cuda(),  \
             list(seq_lengths), list(perm_idx)
