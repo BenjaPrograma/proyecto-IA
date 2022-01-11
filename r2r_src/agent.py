@@ -282,9 +282,9 @@ class Seq2SeqAgent(BaseAgent):
             #print("SHAPE FAKE ONE",ob["fake_instr_encoding"].shape)
             #print("ENCODED", ob["fake_instr_encoding"])
             #print("DECODED", self.tok.decode_sentence(ob["fake_instr_encoding"]))
-            self.instr_batch_checker[pathid] +=1
+            #self.instr_batch_checker[pathid] +=1
         #print(_dict)
-        print(self.instr_batch_checker)
+        #print(self.instr_batch_checker)
         print("### END SORTED BATCH ###")
 
 
@@ -477,9 +477,9 @@ class Seq2SeqAgent(BaseAgent):
         #print("PERM OBS",perm_obs)
         #print("SEQ",seq)
         #print("SEQ LENGTHS",seq_lengths)
-        print("SEQ SHAPE", seq.shape)
+        #print("SEQ SHAPE", seq.shape)
         ctx, h_t, c_t = self.encoder(seq, seq_lengths) # SERA ESTE EL ENCODING FINAL?
-        print("CTX SHAPE", ctx.shape)
+        #print("CTX SHAPE", ctx.shape)
         if (args.matinsWeight != 0 or args.epMatWeight != 0) and not (args.no_train_rl and train_rl):
             # CREAR FAKE INSTRUCTION
             seq_fake, _, seq_lengths_fake, _ = self._sort_batch_fake_instruction(obs)
@@ -487,9 +487,9 @@ class Seq2SeqAgent(BaseAgent):
                 if seq_fake == None:
                     ctx_fake = None
                 else:
-                    print("SEQ SHAPE f", seq_fake.shape)
+                    #print("SEQ SHAPE f", seq_fake.shape)
                     ctx_fake, _, _ = self.encoder(seq_fake, seq_lengths_fake)
-                    print("CTX SHAPE f", ctx_fake.shape)
+                    #print("CTX SHAPE f", ctx_fake.shape)
         else:
             ctx_fake = None
         ctx_mask = seq_mask
@@ -526,7 +526,12 @@ class Seq2SeqAgent(BaseAgent):
         epmat_loss = 0.
         # START EPISODIO
 
+        
+        # OBS TIENEN 64 OB,
+        # AL PASAR A LA OTRA OBS HAY 64 TAMBIEN
+
         for t in range(self.episode_len):
+            print(obs["instr_idx"])
             ObjFeature_mask = None
             sparseObj = None
             denseObj = None
@@ -898,7 +903,7 @@ class Seq2SeqAgent(BaseAgent):
             h_t = h_t.unsqueeze(0)
             c_t = c_t.unsqueeze(0)
             insts = utils.gt_words(perm_obs)
-            print(insts)
+            #print(insts)
 
             # if args.modspe:
             #     l = ctx.size(1)
