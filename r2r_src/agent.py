@@ -477,9 +477,9 @@ class Seq2SeqAgent(BaseAgent):
         #print("PERM OBS",perm_obs)
         #print("SEQ",seq)
         #print("SEQ LENGTHS",seq_lengths)
-
+        print("SEQ SHAPE", seq.shape)
         ctx, h_t, c_t = self.encoder(seq, seq_lengths) # SERA ESTE EL ENCODING FINAL?
-
+        print("CTX SHAPE", ctx.shape)
         if (args.matinsWeight != 0 or args.epMatWeight != 0) and not (args.no_train_rl and train_rl):
             # CREAR FAKE INSTRUCTION
             seq_fake, _, seq_lengths_fake, _ = self._sort_batch_fake_instruction(obs)
@@ -487,7 +487,9 @@ class Seq2SeqAgent(BaseAgent):
                 if seq_fake == None:
                     ctx_fake = None
                 else:
+                    print("SEQ SHAPE f", seq_fake.shape)
                     ctx_fake, _, _ = self.encoder(seq_fake, seq_lengths_fake)
+                    print("CTX SHAPE f", ctx_fake.shape)
         else:
             ctx_fake = None
         ctx_mask = seq_mask
