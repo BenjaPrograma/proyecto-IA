@@ -467,10 +467,10 @@ class Seq2SeqAgent(BaseAgent):
         # Reorder the language input for the encoder (do not ruin the original code)
         seq, seq_mask, seq_lengths, perm_idx = self._sort_batch(obs) 
         
-        print(" perm idx", perm_idx)
-        #print("perm idx shape", perm_idx.shape)
-        print("seq mask shape", seq_mask.shape)
-        print("seq mask", seq_mask)
+        #print(" perm idx", perm_idx)
+        ##print("perm idx shape", perm_idx.shape)
+        #print("seq mask shape", seq_mask.shape)
+        #print("seq mask", seq_mask)
         #print("SEQ INFO", seq_fake, seq_lengths_fake)
         perm_obs = obs[perm_idx]
         #print("OBS",obs)
