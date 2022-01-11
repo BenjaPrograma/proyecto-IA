@@ -258,7 +258,7 @@ class Seq2SeqAgent(BaseAgent):
 
     def _sort_batch_fake_instruction(self, obs):
         # GENERA FAKE OBJS
-        _dict = defaultdict(int(0))
+        _dict = defaultdict(int)
         for ob in obs:
 
             # FAKE INSTRUCTION GENERATION
