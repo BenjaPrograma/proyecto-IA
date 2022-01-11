@@ -279,6 +279,8 @@ class Seq2SeqAgent(BaseAgent):
             #
             ob["fake_instr_encoding"] = self.tok.encode_sentence(fake_instr)
             print("SHAPE FAKE ONE",ob["fake_instr_encoding"].shape)
+            print("ENCODED", ob["fake_instr_encoding"])
+            print("DECODED", self.tok.decode_sentence(ob["fake_instr_encoding"]))
         #print(_dict)
         print("### END SORTED BATCH ###")
         seq_tensor = np.array([ob['fake_instr_encoding'] for ob in obs])
