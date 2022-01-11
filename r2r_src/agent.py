@@ -259,7 +259,7 @@ class Seq2SeqAgent(BaseAgent):
 
     def _sort_batch_fake_instruction(self, obs):
         # GENERA FAKE OBJS
-        _dict = defaultdict(int)
+        #_dict = defaultdict(int)
         for ob in obs:
 
             # FAKE INSTRUCTION GENERATION
@@ -278,10 +278,11 @@ class Seq2SeqAgent(BaseAgent):
         
             #
             ob["fake_instr_encoding"] = self.tok.encode_sentence(fake_instr)
-        print(_dict)
+            print("SHAPE FAKE ONE",ob["fake_instr_encoding"].shape)
+        #print(_dict)
         print("### END SORTED BATCH ###")
         seq_tensor = np.array([ob['fake_instr_encoding'] for ob in obs])
-        print("FAKE SHAPE", seq_tensor.shape)
+        #print("FAKE SHAPE", seq_tensor.shape)
         seq_lengths = np.argmax(seq_tensor == padding_idx, axis=1)
         seq_lengths[seq_lengths == 0] = seq_tensor.shape[1]     # Full length
 
