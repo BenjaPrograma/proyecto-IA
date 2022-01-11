@@ -212,6 +212,7 @@ class Seq2SeqAgent(BaseAgent):
             sequence length (to enable PyTorch packing). '''
 
         seq_tensor = np.array([ob['instr_encoding'] for ob in obs])
+        print("RIAL SHAPE", seq_tensor.shape)
         seq_lengths = np.argmax(seq_tensor == padding_idx, axis=1)
         seq_lengths[seq_lengths == 0] = seq_tensor.shape[1]     # Full length
 
@@ -280,6 +281,7 @@ class Seq2SeqAgent(BaseAgent):
         print(_dict)
         print("### END SORTED BATCH ###")
         seq_tensor = np.array([ob['fake_instr_encoding'] for ob in obs])
+        print("FAKE SHAPE", seq_tensor.shape)
         seq_lengths = np.argmax(seq_tensor == padding_idx, axis=1)
         seq_lengths[seq_lengths == 0] = seq_tensor.shape[1]     # Full length
 
