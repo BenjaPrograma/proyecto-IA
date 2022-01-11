@@ -463,7 +463,7 @@ class Seq2SeqAgent(BaseAgent):
         seq, seq_mask, seq_lengths, perm_idx = self._sort_batch(obs) 
         
         print(" perm idx", perm_idx)
-        print("perm idx shape", perm_idx.shape)
+        #print("perm idx shape", perm_idx.shape)
         print("seq mask shape", seq_mask.shape)
         print("seq mask", seq_mask)
         #print("SEQ INFO", seq_fake, seq_lengths_fake)
