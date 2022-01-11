@@ -801,6 +801,7 @@ class Seq2SeqAgent(BaseAgent):
             self.loss += epmat_loss
             self.logs['epmatins_loss'].append(epmat_loss.detach())
         print("EPISODE ENDED")
+        print("")
         # ACA TERMINA EL EPISODIO # 
         #### 
         
@@ -897,6 +898,7 @@ class Seq2SeqAgent(BaseAgent):
             h_t = h_t.unsqueeze(0)
             c_t = c_t.unsqueeze(0)
             insts = utils.gt_words(perm_obs)
+            print(insts)
 
             # if args.modspe:
             #     l = ctx.size(1)
