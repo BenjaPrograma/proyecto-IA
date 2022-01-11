@@ -96,6 +96,7 @@ class Seq2SeqAgent(BaseAgent):
         self.episode_len = episode_len
         self.feature_size = self.env.feature_size
         #self.nltk_all_objs_list, self.nltk_scan_to_objs = load_nltk_data()
+        self.instr_batch_checker = defaultdict(int)
 
         self.list_of_objs = load_list_of_objs()
         self.pathid_to_direction_idx = load_pathid_to_direction_idx() 
@@ -212,7 +213,7 @@ class Seq2SeqAgent(BaseAgent):
             sequence length (to enable PyTorch packing). '''
 
         seq_tensor = np.array([ob['instr_encoding'] for ob in obs])
-        print("RIAL SHAPE", seq_tensor.shape)
+        #print("RIAL SHAPE", seq_tensor.shape)
         seq_lengths = np.argmax(seq_tensor == padding_idx, axis=1)
         seq_lengths[seq_lengths == 0] = seq_tensor.shape[1]     # Full length
 
@@ -281,8 +282,12 @@ class Seq2SeqAgent(BaseAgent):
             #print("SHAPE FAKE ONE",ob["fake_instr_encoding"].shape)
             #print("ENCODED", ob["fake_instr_encoding"])
             #print("DECODED", self.tok.decode_sentence(ob["fake_instr_encoding"]))
+            self.instr_batch_checker[pathid] +=1
         #print(_dict)
-        #print("### END SORTED BATCH ###")
+        print(self.instr_batch_checker)
+        print("### END SORTED BATCH ###")
+
+
         seq_tensor = np.array([ob['fake_instr_encoding'] for ob in obs])
         #print("FAKE SHAPE", seq_tensor.shape)
         seq_lengths = np.argmax(seq_tensor == padding_idx, axis=1)
@@ -793,6 +798,7 @@ class Seq2SeqAgent(BaseAgent):
             epmat_loss = epmat_loss *args.epMatWeight
             self.loss += epmat_loss
             self.logs['epmatins_loss'].append(epmat_loss.detach())
+        print("EPISODE ENDED")
         # ACA TERMINA EL EPISODIO # 
         #### 
         
