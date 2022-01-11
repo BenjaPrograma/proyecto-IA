@@ -278,11 +278,11 @@ class Seq2SeqAgent(BaseAgent):
         
             #
             ob["fake_instr_encoding"] = self.tok.encode_sentence(fake_instr)
-            print("SHAPE FAKE ONE",ob["fake_instr_encoding"].shape)
-            print("ENCODED", ob["fake_instr_encoding"])
-            print("DECODED", self.tok.decode_sentence(ob["fake_instr_encoding"]))
+            #print("SHAPE FAKE ONE",ob["fake_instr_encoding"].shape)
+            #print("ENCODED", ob["fake_instr_encoding"])
+            #print("DECODED", self.tok.decode_sentence(ob["fake_instr_encoding"]))
         #print(_dict)
-        print("### END SORTED BATCH ###")
+        #print("### END SORTED BATCH ###")
         seq_tensor = np.array([ob['fake_instr_encoding'] for ob in obs])
         #print("FAKE SHAPE", seq_tensor.shape)
         seq_lengths = np.argmax(seq_tensor == padding_idx, axis=1)
@@ -295,8 +295,8 @@ class Seq2SeqAgent(BaseAgent):
         seq_lengths, perm_idx = seq_lengths.sort(0, True)       # True -> descending
         sorted_tensor = seq_tensor[perm_idx]
         mask = (sorted_tensor == padding_idx)[:,:seq_lengths[0]]    # seq_lengths[0] is the Maximum length
-        print("shape sq lengths", seq_lengths.shape)
-        print(list(seq_lengths))
+        #print("shape sq lengths", seq_lengths.shape)
+        #print(list(seq_lengths))
         return Variable(sorted_tensor, requires_grad=False).long().cuda(), \
             mask.byte().cuda(),  \
             list(seq_lengths), list(perm_idx)
@@ -462,7 +462,10 @@ class Seq2SeqAgent(BaseAgent):
         # Reorder the language input for the encoder (do not ruin the original code)
         seq, seq_mask, seq_lengths, perm_idx = self._sort_batch(obs) 
         
-        
+        print(" perm idx", perm_idx)
+        print("perm idx shape", perm_idx.shape)
+        print("seq mask shape", seq_mask.shape)
+        print("seq mask", seq_mask)
         #print("SEQ INFO", seq_fake, seq_lengths_fake)
         perm_obs = obs[perm_idx]
         #print("OBS",obs)
