@@ -235,7 +235,7 @@ class Seq2SeqAgent(BaseAgent):
                list(seq_lengths), list(perm_idx)
 
     def _sort_batch_fake_instructions_for_episode(self, obs):
-        _l = []
+
         for ob in obs:
             # FAKE INSTRUCTION GENERATION
             instr = ob["instructions"]
@@ -249,9 +249,7 @@ class Seq2SeqAgent(BaseAgent):
             if fake_instr == False:
                 return None, None, None, None
             
-            ob["fake_instr_encoding"] = self.tok.encode_sentence(fake_instr)
-            _l.append((len(ob["fake_instr_encoding"]), len(ob["instr_encoding"])))
-        print("IMPORTANT LEN F y R", _l)
+
         seq_tensor = np.array([ob['fake_instr_encoding'] for ob in obs])
         seq_lengths = np.argmax(seq_tensor == padding_idx, axis=1)
         seq_lengths[seq_lengths == 0] = seq_tensor.shape[1]     # Full length
@@ -268,6 +266,7 @@ class Seq2SeqAgent(BaseAgent):
     def _sort_batch_fake_instruction(self, obs):
         # GENERA FAKE OBJS
         #_dict = defaultdict(int)
+        _l = []
         for ob in obs:
 
             # FAKE INSTRUCTION GENERATION
@@ -286,12 +285,16 @@ class Seq2SeqAgent(BaseAgent):
         
             #
             ob["fake_instr_encoding"] = self.tok.encode_sentence(fake_instr)
+
+            _l.append((len(ob["fake_instr_encoding"]), len(ob["instr_encoding"])))
+            
             #print("SHAPE FAKE ONE",ob["fake_instr_encoding"].shape)
             #print("ENCODED", ob["fake_instr_encoding"])
             #print("DECODED", self.tok.decode_sentence(ob["fake_instr_encoding"]))
             #self.instr_batch_checker[pathid] +=1
         #print(_dict)
         #print(self.instr_batch_checker)
+        print("IMPORTANT LEN F y R", _l)
         print("### END SORTED BATCH ###")
 
 
