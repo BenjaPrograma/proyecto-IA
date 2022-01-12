@@ -531,7 +531,12 @@ class Seq2SeqAgent(BaseAgent):
         # AL PASAR A LA OTRA OBS HAY 64 TAMBIEN
 
         for t in range(self.episode_len):
-            print(obs["instr_idx"])
+            total_obs = []
+            for ob in obs:
+                total_obs.append(ob["instr_idx"])
+            print(total_obs)
+
+            #print(obs["instr_idx"])
             ObjFeature_mask = None
             sparseObj = None
             denseObj = None
