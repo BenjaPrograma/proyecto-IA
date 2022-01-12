@@ -213,6 +213,11 @@ class Seq2SeqAgent(BaseAgent):
             sequence length (to enable PyTorch packing). '''
 
         seq_tensor = np.array([ob['instr_encoding'] for ob in obs])
+        _l = []
+        for ob in obs:
+            #print(len(ob["instr_encoding"]))
+            _l.append(len(ob["instr_encoding"]))
+        print("LENS R",_l)
         #print("RIAL SHAPE", seq_tensor.shape)
         seq_lengths = np.argmax(seq_tensor == padding_idx, axis=1)
         seq_lengths[seq_lengths == 0] = seq_tensor.shape[1]     # Full length
@@ -230,6 +235,7 @@ class Seq2SeqAgent(BaseAgent):
                list(seq_lengths), list(perm_idx)
 
     def _sort_batch_fake_instructions_for_episode(self, obs):
+        _l = []
         for ob in obs:
             # FAKE INSTRUCTION GENERATION
             instr = ob["instructions"]
@@ -244,7 +250,8 @@ class Seq2SeqAgent(BaseAgent):
                 return None, None, None, None
             
             ob["fake_instr_encoding"] = self.tok.encode_sentence(fake_instr)
-
+            _l.append((len(ob["fake_instr_encoding"]), len(ob["instr_encoding"])))
+        print("IMPORTANT LEN F y R", _l)
         seq_tensor = np.array([ob['fake_instr_encoding'] for ob in obs])
         seq_lengths = np.argmax(seq_tensor == padding_idx, axis=1)
         seq_lengths[seq_lengths == 0] = seq_tensor.shape[1]     # Full length
@@ -531,10 +538,6 @@ class Seq2SeqAgent(BaseAgent):
         # AL PASAR A LA OTRA OBS HAY 64 TAMBIEN
 
         for t in range(self.episode_len):
-            total_obs = []
-            for ob in obs:
-                total_obs.append(ob["instr_idx"])
-            print(total_obs)
 
             #print(obs["instr_idx"])
             ObjFeature_mask = None
