@@ -992,40 +992,24 @@ class Seq2SeqAgent(BaseAgent):
                 ## SI ESQ PODEMOS CREAR EN EL .json un fake_instruction
                 
                 if ctx_fake != None:
-                    #if args.modmat:
                     for i in range(v_ctx.shape[1]):
-                        # CREA UN ARREGLO NUEVO DE H1
-                        if args.matins_vl_ctx:
-                            # EXPERIMENTACION CON CROSSMODAL
-                            if i == 0:
-                                h1 = vl_ctx[:, i, :]
-                            else:
-                                _h1 = vl_ctx[:, i, :]
-                                valid_mask = ~decode_mask[:, i] # True: move, False: already finished BEFORE THIS ACTION
-                                h1 = h1 * (1-valid_mask.float().unsqueeze(1)) + _h1 * valid_mask.float().unsqueeze(1) # update active feature
+                        if i == 0:
+                            h1 = v_ctx[:, i, :]
                         else:
-                            # PROPUESTO ORIGINALMENTE
-                            if i == 0:
-                                h1 = v_ctx[:, i, :]
-                            else:
-                                _h1 = v_ctx[:, i, :]
-                                valid_mask = ~decode_mask[:, i] # True: move, False: already finished BEFORE THIS ACTION
-                                h1 = h1 * (1-valid_mask.float().unsqueeze(1)) + _h1 * valid_mask.float().unsqueeze(1) # update active feature
-                                # SI ES MOVIMIENTO, LE AGREGA A H1 LA SUMA
-                                # SI YA TERMINO LA DEJA IGUAL
-                    
+                            _h1 = v_ctx[:, i, :]
+                            valid_mask = ~decode_mask[:, i] # True: move, False: already finished BEFORE THIS ACTION
+                            h1 = h1 * (1-valid_mask.float().unsqueeze(1)) + _h1 * valid_mask.float().unsqueeze(1) # update active feature
+                            # SI ES MOVIMIENTO, LE AGREGA A H1 LA SUMA
+                            # SI YA TERMINO LA DEJA IGUAL
+                
                     batch_size = h1.shape[0]
                     mix_ctx = []
-                    label = []
-                    #print("DIM", args.rnn_dim)
-                    #print("SHAPE H1",h1.shape)
-                    #print("SHAPE H1 sl",h1.shape)
-                    #print("SHAPE CTX",ctx.shape)
-                    #print("SHAPE FAKE CTX",ctx_fake.shape)
-                    #print("SHAPE CTX SLI",ctx[:,0,:].detach().shape)
-                    #asd = torch.cat((h1, ctx[:,0,:]), dim=1)
-                    ctx = ctx[:,0,:].detach()
-                    ctx_fake = ctx_fake[:,0,:].detach()
+                    if args.matins_first_last:
+                        ctx = torch.cat((ctx[:,0,:], ctx[:,-1,:]), dim=1).detach()
+                        ctx_fake = torch.cat((ctx_fake[:,0,:], ctx_fake[:,-1,:]), dim=1).detach()
+                    else:
+                        ctx = ctx[:,0,:].detach()
+                        ctx_fake = ctx_fake[:,0,:].detach()
                     for i in range(batch_size):
                         if random.random() > 0.5:
                             mix_ctx.append(ctx_fake.select(0,i))
@@ -1035,14 +1019,11 @@ class Seq2SeqAgent(BaseAgent):
                             label.append(1)
                     label = torch.tensor(label)
                     label = label.float().unsqueeze(1).cuda()
-                    #print("SHAPE LABEL",label.shape)
 
                     mix_ctx = torch.stack(mix_ctx).cuda()
-                    #print("MIX SHAPE",mix_ctx.shape)
+
                     vl_pair = torch.cat((h1,mix_ctx), dim=1)
                     prob = self.matching_instruction(vl_pair)
-                    #print("PROB SHAPE", prob.shape)
-                    #prob = prob.select(0,0)
 
                     matins_loss = F.binary_cross_entropy(prob,label) *args.matinsWeight
                     self.loss += matins_loss

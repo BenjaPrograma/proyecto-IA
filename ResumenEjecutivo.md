@@ -33,3 +33,26 @@ teacher forcing. El rollout se ejecuta una vez en teacher forcing y otra en "sam
 
     # El algoritmo para matins
     # utiliza v_ctx al igual que matching original, hay que probar vl_ctx
+    # Generamos aleatoriamente el vector mix_ctx y en label almacenamos el origen
+    mix_ctx = []
+    label = []
+    ctx = ctx[:,0,:].detach()
+    ctx_fake = ctx_fake[:,0,:].detach()
+    for i in range(batch_size):
+        if random.random() > 0.5:
+            mix_ctx.append(ctx_fake.select(0,i))
+            label.append(0)
+        else:
+            mix_ctx.append(ctx.select(0,i))
+            label.append(1)
+
+
+
+## Cosas por aclarar
+- Rendimiento de vl_ctx v/s v_ctx y cual hace más sentido en usar
+- Que tipo de features de lenguaje se están usando, first features only.
+Entender bien los slicing que hacen, ya que en el paper original se sugiere first + last features of language.
+    l_ctx = ctx[:,0,:].detach() # FIRST FEATURES ONLY
+    # l_ctx = torch.cat((ctx[:,0,:], ctx[:,-1,:]), dim=1).detach() # FIRST AND LAST
+En mis experimentos utilicé solo first, el paper recomienda first + last.
+Entender que significa first features v/s first + last.
