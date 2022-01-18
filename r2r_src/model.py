@@ -53,7 +53,10 @@ class MatchCorrectInstruction(nn.Module):
     def __init__(self):
         super(MatchCorrectInstruction, self).__init__()
         hidden_size = args.rnn_dim
-        self.fc1 = nn.Linear(hidden_size*2, hidden_size)
+        if args.matins_first_last:
+            self.fc1 = nn.Linear(hidden_size*3, hidden_size)
+        else:
+            self.fc1 = nn.Linear(hidden_size*2, hidden_size)
         self.relu1 = nn.LeakyReLU()
         self.fc2 = nn.Linear(hidden_size, 1)
         self.sigmoid = nn.Sigmoid()
