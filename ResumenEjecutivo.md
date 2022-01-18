@@ -49,7 +49,9 @@ teacher forcing. El rollout se ejecuta una vez en teacher forcing y otra en "sam
 
 
 ## Cosas por aclarar
-- Rendimiento de vl_ctx v/s v_ctx y cual hace más sentido en usar
+- Rendimiento de vl_ctx v/s v_ctx y cual hace más sentido en usar.
+EXP: VL_CTX Se aprende inmediatamente, dado que tiene atencion sobre el lenguaje tiene sentido.
+
 - Que tipo de features de lenguaje se están usando, first features only.
 Entender bien los slicing que hacen, ya que en el paper original se sugiere first + last features of language.
     l_ctx = ctx[:,0,:].detach() # FIRST FEATURES ONLY
