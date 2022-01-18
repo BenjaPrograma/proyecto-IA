@@ -1024,7 +1024,7 @@ class Seq2SeqAgent(BaseAgent):
                     mix_ctx = torch.stack(mix_ctx).cuda()
 
                     vl_pair = torch.cat((h1,mix_ctx), dim=1)
-                    print("SHAPE VL_PAIR", vl_pair.shape)
+
                     prob = self.matching_instruction(vl_pair)
 
                     matins_loss = F.binary_cross_entropy(prob,label) *args.matinsWeight
