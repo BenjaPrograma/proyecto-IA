@@ -96,7 +96,7 @@ class Seq2SeqAgent(BaseAgent):
         self.episode_len = episode_len
         self.feature_size = self.env.feature_size
         #self.nltk_all_objs_list, self.nltk_scan_to_objs = load_nltk_data()
-        self.instr_batch_checker = defaultdict(int)
+        #self.instr_batch_checker = defaultdict(int)
 
         self.list_of_objs = load_list_of_objs()
         self.pathid_to_direction_idx = load_pathid_to_direction_idx() 
@@ -213,11 +213,11 @@ class Seq2SeqAgent(BaseAgent):
             sequence length (to enable PyTorch packing). '''
 
         seq_tensor = np.array([ob['instr_encoding'] for ob in obs])
-        _l = []
-        for ob in obs:
-            #print(len(ob["instr_encoding"]))
-            _l.append(len(ob["instr_encoding"]))
-        print("LENS R",_l)
+        #_l = []
+        #for ob in obs:
+        #    #print(len(ob["instr_encoding"]))
+        #    _l.append(len(ob["instr_encoding"]))
+        #print("LENS R",_l)
         #print("RIAL SHAPE", seq_tensor.shape)
         seq_lengths = np.argmax(seq_tensor == padding_idx, axis=1)
         seq_lengths[seq_lengths == 0] = seq_tensor.shape[1]     # Full length
@@ -266,7 +266,7 @@ class Seq2SeqAgent(BaseAgent):
     def _sort_batch_fake_instruction(self, obs):
         # GENERA FAKE OBJS
         #_dict = defaultdict(int)
-        _l = []
+        #_l = []
         for ob in obs:
 
             # FAKE INSTRUCTION GENERATION
@@ -286,7 +286,7 @@ class Seq2SeqAgent(BaseAgent):
             #
             ob["fake_instr_encoding"] = self.tok.encode_sentence(fake_instr)
 
-            _l.append((len(ob["fake_instr_encoding"]), len(ob["instr_encoding"])))
+            #_l.append((len(ob["fake_instr_encoding"]), len(ob["instr_encoding"])))
             
             #print("SHAPE FAKE ONE",ob["fake_instr_encoding"].shape)
             #print("ENCODED", ob["fake_instr_encoding"])
@@ -294,8 +294,8 @@ class Seq2SeqAgent(BaseAgent):
             #self.instr_batch_checker[pathid] +=1
         #print(_dict)
         #print(self.instr_batch_checker)
-        print("IMPORTANT LEN F y R", _l)
-        print("### END SORTED BATCH ###")
+        #print("IMPORTANT LEN F y R", _l)
+        #print("### END SORTED BATCH ###")
 
 
         seq_tensor = np.array([ob['fake_instr_encoding'] for ob in obs])
@@ -816,8 +816,8 @@ class Seq2SeqAgent(BaseAgent):
             epmat_loss = epmat_loss *args.epMatWeight
             self.loss += epmat_loss
             self.logs['epmatins_loss'].append(epmat_loss.detach())
-        print("EPISODE ENDED")
-        print("")
+        #print("EPISODE ENDED")
+        #print("")
         # ACA TERMINA EL EPISODIO # 
         #### 
         
@@ -995,14 +995,24 @@ class Seq2SeqAgent(BaseAgent):
                     #if args.modmat:
                     for i in range(v_ctx.shape[1]):
                         # CREA UN ARREGLO NUEVO DE H1
-                        if i == 0:
-                            h1 = v_ctx[:, i, :]
+                        if args.matins_vl_ctx:
+                            # EXPERIMENTACION CON CROSSMODAL
+                            if i == 0:
+                                h1 = vl_ctx[:, i, :]
+                            else:
+                                _h1 = vl_ctx[:, i, :]
+                                valid_mask = ~decode_mask[:, i] # True: move, False: already finished BEFORE THIS ACTION
+                                h1 = h1 * (1-valid_mask.float().unsqueeze(1)) + _h1 * valid_mask.float().unsqueeze(1) # update active feature
                         else:
-                            _h1 = v_ctx[:, i, :]
-                            valid_mask = ~decode_mask[:, i] # True: move, False: already finished BEFORE THIS ACTION
-                            h1 = h1 * (1-valid_mask.float().unsqueeze(1)) + _h1 * valid_mask.float().unsqueeze(1) # update active feature
-                            # SI ES MOVIMIENTO, LE AGREGA A H1 LA SUMA
-                            # SI YA TERMINO LA DEJA IGUAL
+                            # PROPUESTO ORIGINALMENTE
+                            if i == 0:
+                                h1 = v_ctx[:, i, :]
+                            else:
+                                _h1 = v_ctx[:, i, :]
+                                valid_mask = ~decode_mask[:, i] # True: move, False: already finished BEFORE THIS ACTION
+                                h1 = h1 * (1-valid_mask.float().unsqueeze(1)) + _h1 * valid_mask.float().unsqueeze(1) # update active feature
+                                # SI ES MOVIMIENTO, LE AGREGA A H1 LA SUMA
+                                # SI YA TERMINO LA DEJA IGUAL
                     
                     batch_size = h1.shape[0]
                     mix_ctx = []
