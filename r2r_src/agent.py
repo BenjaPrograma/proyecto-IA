@@ -1004,6 +1004,7 @@ class Seq2SeqAgent(BaseAgent):
                 
                     batch_size = h1.shape[0]
                     mix_ctx = []
+                    label = []
                     if args.matins_first_last:
                         ctx = torch.cat((ctx[:,0,:], ctx[:,-1,:]), dim=1).detach()
                         ctx_fake = torch.cat((ctx_fake[:,0,:], ctx_fake[:,-1,:]), dim=1).detach()
