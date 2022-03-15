@@ -107,5 +107,32 @@ En mis experimentos utilicé solo first, el paper recomienda first + last.
 Entender que significa first features v/s first + last.
 Actualmente estoy corriendo experimentos con first + last.
 
+### Update using first + last features
+- The results are worse than using only the first language features, there is still the possibility that with other hyperparams the result could be better.
+- What happens using first + last, is that the aux task loss converges quicker and to a lower value (0.2 v/s 0.12)
+- I expected that with first + last features the results would be better, and cant find an explanation as to why it would have worse results.
+
 ## Ideas por explorar
 - Cambio temporal dentro de las instrucciones (esto es cambiar el orden de los trozos de instrucción) agregando más labels (la tarea dejaria de ser clasificacion binaria), esto puede ser utilizado para episodic y matins normal. Podrían ser labels adicionales, uno para cuando es modificada solo temporalmente, y otro cuando es modificada en palabras y temporalmente.
+
+## Current Best Setup for MAX SR Unseen
+
+
+- Best results were VAL UNSEEN: SR 47.5X, SPL: 44.8 SPL
+- In the original paper they got SR: 47.98 SPL 44.1 SPL
+- And their  baseline was SR: 46.40, SPL: 42.89
+
+The setup to obtain those results was something like this:
+
+80K iters 0.0001, matins 1
+40k iters 0.00005, matins 1
+UNK iters 0.0001, matins 5 >>> matins 2
+
+Im currently trying to replicate those results with 
+120k iters 0.0001 LR on the aux task, and 1 weight ponderation in the total loss. And then I have to see if its a good idea to increment the weight ponderation of the aux task to a greater one, or if just more iterations would do the trick
+
+## Considerations
+
+
+
+

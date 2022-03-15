@@ -700,7 +700,7 @@ class Seq2SeqAgent(BaseAgent):
                     # VER ENTONCES QUE NO HAYA TERMINADO SOLAMENTE
                     if ctx_fake != None:
                         if args.current_image_and_current_text:
-
+                            # DEBERIA USAR H_T
                             #ctx_fake= self._sort_batch_fake_instructions_for_episode(obs)
                             #for i in range(v_ctx_temp.shape[1]):
                             #    # CREA UN ARREGLO NUEVO DE H1
