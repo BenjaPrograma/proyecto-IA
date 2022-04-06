@@ -197,8 +197,8 @@ class R2RBatch():
                             instr = replace_object(pathid_to_obj_idx, instr,j,pathid, list_of_objs)
                             #print(instr)
                             #print("#####")
-                    new_item['instructions'] = instr
-                    new_item["instructions_idx"] = j
+                    #new_item['instructions'] = instr
+                    #new_item["instructions_idx"] = j
                     #print("vanilla instr type =", instr)
                     #copy_instr = copy.copy(instr)
                     #if item["scan"] in scanid_to_objs:

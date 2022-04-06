@@ -289,6 +289,7 @@ class Seq2SeqAgent(BaseAgent):
             print(len(ob[instr]))
             print(instr)
             print("pathid",pathid,"instr_idx",instr_idx)
+            print(ob["instr_id"])
             print("####")
             #print(instr)
             #print(fake_instr)
