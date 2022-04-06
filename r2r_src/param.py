@@ -59,6 +59,7 @@ class Param:
         # aux loss
         self.parser.add_argument("--aux_option", action='store_const', default=False, const=True)
         self.parser.add_argument("--matins_first_last", action='store_const', default=False, const=True)
+        self.parser.add_argument("--matins_only_obj", action='store_const', default=False, const=True)
         self.parser.add_argument('--speWeight', type=float, default=0)
         self.parser.add_argument('--proWeight', type=float, default=0)
         self.parser.add_argument('--matWeight', type=float, default=0)

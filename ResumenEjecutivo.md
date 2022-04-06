@@ -111,6 +111,7 @@ Actualmente estoy corriendo experimentos con first + last.
 - The results are worse than using only the first language features, there is still the possibility that with other hyperparams the result could be better.
 - What happens using first + last, is that the aux task loss converges quicker and to a lower value (0.2 v/s 0.12)
 - I expected that with first + last features the results would be better, and cant find an explanation as to why it would have worse results.
+- First + Last features performs better on Val_seen, both on SPL and SR with lesser iterations than with first features only. 
 
 ## Ideas por explorar
 - Cambio temporal dentro de las instrucciones (esto es cambiar el orden de los trozos de instrucción) agregando más labels (la tarea dejaria de ser clasificacion binaria), esto puede ser utilizado para episodic y matins normal. Podrían ser labels adicionales, uno para cuando es modificada solo temporalmente, y otro cuando es modificada en palabras y temporalmente.
