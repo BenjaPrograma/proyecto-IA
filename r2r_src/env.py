@@ -179,6 +179,9 @@ class R2RBatch():
                         continue
                     new_item = dict(item)
                     new_item['instr_id'] = '%s_%d' % (item['path_id'], j)
+                    print(instr)
+                    print(new_item['instr_id'])
+                    print("####")
                     instr = string_cleaner_nlp(instr)
                     if split == "train":
                         if args.no_object:

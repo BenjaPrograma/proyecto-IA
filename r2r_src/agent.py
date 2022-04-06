@@ -283,7 +283,13 @@ class Seq2SeqAgent(BaseAgent):
                 self.list_of_objs, instr, instr_idx, pathid, 
                 args.matins_only_obj)
             #_dict[pathid] +=1
-            #print("pathid",pathid,"instr_idx",instr_idx)
+            # 
+            #
+            print(type(instr))
+            print(len(ob[instr]))
+            print(instr)
+            print("pathid",pathid,"instr_idx",instr_idx)
+            print("####")
             #print(instr)
             #print(fake_instr)
             if fake_instr == False:
@@ -482,7 +488,6 @@ class Seq2SeqAgent(BaseAgent):
 
         # Reorder the language input for the encoder (do not ruin the original code)
         seq, seq_mask, seq_lengths, perm_idx = self._sort_batch(obs) 
-        ctx, h_t, c_t = self.encoder(seq, seq_lengths) # SERA ESTE EL ENCODING FINAL?
         
         #print(" perm idx", perm_idx)
         ##print("perm idx shape", perm_idx.shape)
@@ -492,6 +497,7 @@ class Seq2SeqAgent(BaseAgent):
         perm_obs = obs[perm_idx]
         #print("OBS",obs)
         #print("PERM OBS",perm_obs)
+        ctx, h_t, c_t = self.encoder(seq, seq_lengths) # SERA ESTE EL ENCODING FINAL?
         #print("SEQ",seq)
         #print("SEQ LENGTHS",seq_lengths)
         #print("SEQ SHAPE", seq.shape)
