@@ -482,6 +482,7 @@ class Seq2SeqAgent(BaseAgent):
 
         # Reorder the language input for the encoder (do not ruin the original code)
         seq, seq_mask, seq_lengths, perm_idx = self._sort_batch(obs) 
+        ctx, h_t, c_t = self.encoder(seq, seq_lengths) # SERA ESTE EL ENCODING FINAL?
         
         #print(" perm idx", perm_idx)
         ##print("perm idx shape", perm_idx.shape)
@@ -494,7 +495,6 @@ class Seq2SeqAgent(BaseAgent):
         #print("SEQ",seq)
         #print("SEQ LENGTHS",seq_lengths)
         #print("SEQ SHAPE", seq.shape)
-        ctx, h_t, c_t = self.encoder(seq, seq_lengths) # SERA ESTE EL ENCODING FINAL?
         #print("CTX SHAPE", ctx.shape)
         if (args.matinsWeight != 0 or args.epMatWeight != 0) and not (args.no_train_rl and train_rl):
             # CREAR FAKE INSTRUCTION
