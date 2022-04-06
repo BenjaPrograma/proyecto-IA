@@ -285,8 +285,10 @@ class Seq2SeqAgent(BaseAgent):
             #_dict[pathid] +=1
             # 
             #
+            print(ob["instr_encoding"])
+            print(len(ob["instr_encoding"]))
             print(type(instr))
-            print(len(ob[instr]))
+            print(len(instr))
             print(instr)
             print("pathid",pathid,"instr_idx",instr_idx)
             print(ob["instr_id"])
