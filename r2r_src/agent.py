@@ -283,7 +283,7 @@ class Seq2SeqAgent(BaseAgent):
                 self.list_of_objs, instr, instr_idx, pathid, 
                 args.matins_only_obj)
             #_dict[pathid] +=1
-            #print("pathid",pathid,"instr_idx",instr_idx)
+            print("pathid",pathid,"instr_idx",instr_idx)
             #print(instr)
             #print(fake_instr)
             if fake_instr == False:

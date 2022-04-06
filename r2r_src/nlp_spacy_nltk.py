@@ -757,8 +757,9 @@ def replace_object(pathid_to_obj_idx, instr,i,path_id, list_of_objs, alpha=0.5):
 
 
 
-def gen_fake_instruction(pathid_to_direction_idx, pathid_to_obj_idx, directions_and_contrafactual, list_of_objs, instr, j, pathid
-    ,matins_only_obj= False):
+def gen_fake_instruction(pathid_to_direction_idx, pathid_to_obj_idx, 
+            directions_and_contrafactual, list_of_objs, 
+            instr, j, pathid ,matins_only_obj= False):
     instr_tok = instr
     if pathid not in pathid_to_obj_idx or pathid not in pathid_to_direction_idx:
         return False
