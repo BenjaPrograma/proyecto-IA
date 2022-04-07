@@ -726,7 +726,7 @@ def load_list_of_objs():
         dict = pickle.load(f)
     return dict
 
-def replace_object(pathid_to_obj_idx, instr,i,path_id, list_of_objs, alpha=0.5):
+def __replace_object(pathid_to_obj_idx, instr,i,path_id, list_of_objs, alpha=0.5):
     instr_tok = instr.split(' ')
     idxs = pathid_to_obj_idx[path_id][i]
     idxs_to_pop = []
@@ -768,10 +768,23 @@ def gen_fake_instruction(pathid_to_direction_idx, pathid_to_obj_idx,
 
     instr_objs = pathid_to_obj_idx[pathid][j]
     instr_directions = pathid_to_direction_idx[pathid][j]
-    if (instr_objs == [] and instr_directions == []) or (instr_objs == [] and matins_only_obj):
-            return " ".join(instr_tok)
-    idxs_to_pop = []
     obj_set = set()
+    if (instr_objs == [] and instr_directions == []) or (instr_objs == [] and matins_only_obj):
+            ## INSERTAR OBJETOS QUE NO ESTEN
+            for j in pathid_to_obj_idx[pathid]:
+                for tuple in j:
+                    _, _ ,word =tuple
+                    obj_set.add(word)
+
+            new_obj = ""
+            while new_obj == "" or new_obj in obj_set:
+                    new_obj = random.choice(list_of_objs)
+
+            instr_tok.insert(random.randint(1,len(instr_tok)), new_obj)
+            
+            return " ".join(instr_tok)
+            #return " ".join(instr_tok)
+    idxs_to_pop = []
     # 1 objs, 2 dirs, 3 both
     if matins_only_obj:
         what_to_replace = 1
@@ -788,10 +801,11 @@ def gen_fake_instruction(pathid_to_direction_idx, pathid_to_obj_idx,
     while instr_tok_backup == instr_tok:
         if what_to_replace == 1:
             # SOLO SE REEMPLAZA OBJ
+            for j in pathid_to_obj_idx[pathid]:
+                for tuple in j:
+                    _, _ ,word =tuple
+                    obj_set.add(word)
 
-            for tuple in instr_objs:
-                _,_,word =tuple
-                obj_set.add(word)
 
             x,y, word = random.choice(instr_objs)
             new_obj = random.choice(list_of_objs)
