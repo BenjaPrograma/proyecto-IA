@@ -726,7 +726,7 @@ def load_list_of_objs():
         dict = pickle.load(f)
     return dict
 
-def __replace_object(pathid_to_obj_idx, instr,i,path_id, list_of_objs, alpha=0.5):
+def replace_object(pathid_to_obj_idx, instr,i,path_id, list_of_objs, alpha=0.5):
     instr_tok = instr.split(' ')
     idxs = pathid_to_obj_idx[path_id][i]
     idxs_to_pop = []
@@ -781,7 +781,7 @@ def gen_fake_instruction(pathid_to_direction_idx, pathid_to_obj_idx,
                     new_obj = random.choice(list_of_objs)
 
             instr_tok.insert(random.randint(1,len(instr_tok)), new_obj)
-            
+
             return " ".join(instr_tok)
             #return " ".join(instr_tok)
     idxs_to_pop = []
