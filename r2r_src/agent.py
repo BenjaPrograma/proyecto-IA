@@ -274,27 +274,14 @@ class Seq2SeqAgent(BaseAgent):
             instr = instr.split(' ')
             instr_idx = ob["instr_idx"]
             pathid = ob["path_id"]
-            #print(instr)
-            #print(pathid,instr_idx)
-            #print("####")
+
             scan = ob["scan"]
             fake_instr = gen_fake_instruction(self.pathid_to_direction_idx, 
                 self.pathid_to_obj_idx, self.directions_and_contrafactual, 
                 self.list_of_objs, instr, instr_idx, pathid, 
                 args.matins_only_obj)
-            #_dict[pathid] +=1
-            # 
-            #
-            print(ob["instr_encoding"])
-            print(len(ob["instr_encoding"]))
-            print(type(instr))
-            print(len(instr))
-            print(instr)
-            print("pathid",pathid,"instr_idx",instr_idx)
-            print(ob["instr_id"])
-            print("####")
-            #print(instr)
-            #print(fake_instr)
+
+
             if fake_instr == False:
                 return None, None, None, None
         
