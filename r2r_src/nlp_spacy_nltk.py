@@ -731,9 +731,10 @@ def replace_object(pathid_to_obj_idx, instr,i,path_id, list_of_objs, alpha=0.5):
     idxs = pathid_to_obj_idx[path_id][i]
     idxs_to_pop = []
     obj_set = set()
-    for tuple in idxs:
-        x,y,word =tuple
-        obj_set.add(word)
+    for j in pathid_to_obj_idx[path_id]:
+        for tuple in j:
+            x,y,word =tuple
+            obj_set.add(word)
     
     for tuple in idxs:
         x,y,word = tuple
@@ -866,11 +867,11 @@ def gen_fake_instruction(pathid_to_direction_idx, pathid_to_obj_idx,
 
 def generate_ablation():
     pathid = 6250
-
-    list_of_objs = load_list_of_objs()
-    pathid_to_direction_idx = load_pathid_to_direction_idx() 
-    directions_and_contrafactual = load_directions_and_contrafactual()
-    pathid_to_obj_idx = load_pathid_to_obj_idx()
+####
+    list_of_objs = load_list_of_objs()#
+    pathid_to_direction_idx = load_pathid_to_direction_idx() #
+    directions_and_contrafactual = load_directions_and_contrafactual() #
+    pathid_to_obj_idx = load_pathid_to_obj_idx()# 
     instructions =  ["Walk down one flight of stairs and stop on the landing.",
       "Walk between the columns and make a sharp turn right. Walk down the steps and stop on the landing. ", 
       "walk forward then turn right at the stairs then go down the stairs. "]
